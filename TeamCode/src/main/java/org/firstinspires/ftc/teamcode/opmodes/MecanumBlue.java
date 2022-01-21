@@ -20,6 +20,7 @@ public class MecanumBlue extends OpMode {
     Hopper hopper = new Hopper();
     Capper capper = new Capper();
 
+    @Override
     public void init() {
         // Initialize each mechanism
         chassis.init(hardwareMap);
