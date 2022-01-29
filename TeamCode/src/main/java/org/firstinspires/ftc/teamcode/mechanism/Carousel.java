@@ -48,7 +48,7 @@ public class Carousel implements Mechanism {
         // carousel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void run(Gamepad gamepad) {
+    public void run(Gamepad gamepad, boolean stickyMode) {
 //        //This makes sure things only happen once.
 //        if (gamepad.a) {
 //            if (!aWasDown) {

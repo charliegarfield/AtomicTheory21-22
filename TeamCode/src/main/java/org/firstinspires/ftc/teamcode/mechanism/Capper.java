@@ -22,7 +22,7 @@ public class Capper implements Mechanism {
     }
 
     @Override
-    public void run(Gamepad gamepad) {
+    public void run(Gamepad gamepad, boolean stickyMode) {
         if(gamepad.y) {
             // Ability for manual control, which resets the motor's encoder value when done
             if(onEncoders) {

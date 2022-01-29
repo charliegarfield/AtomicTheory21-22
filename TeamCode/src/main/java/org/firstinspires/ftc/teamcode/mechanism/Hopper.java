@@ -16,18 +16,20 @@ public class Hopper implements Mechanism {
     }
 
     @Override
-    public void run(Gamepad gamepad) {
-        if (gamepad.a) {
-            //Make sure it doesn't set the position constantly
-            if(state != 1) {
-                hopper.setPosition(HOPPER_TOP);
-                state = 1;
-            }
-        } else {
-            //Make sure it doesn't set the position constantly
-            if(state != 0) {
-                hopper.setPosition(HOPPER_BOTTOM);
-                state = 0;
+    public void run(Gamepad gamepad, boolean stickyMode) {
+        if(!stickyMode) {
+            if (gamepad.a) {
+                //Make sure it doesn't set the position constantly
+                if (state != 1) {
+                    hopper.setPosition(HOPPER_TOP);
+                    state = 1;
+                }
+            } else {
+                //Make sure it doesn't set the position constantly
+                if (state != 0) {
+                    hopper.setPosition(HOPPER_BOTTOM);
+                    state = 0;
+                }
             }
         }
     }
