@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.mechanism.*;
 import org.firstinspires.ftc.teamcode.mechanism.chassis.MecanumChassis;
 
 @TeleOp(name = "Mecanum OpMode (Red)", group = "Remote")
 public class MecanumRed extends OpMode {
+    ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+
     MecanumChassis chassis = new MecanumChassis();
     Carousel carousel = new Carousel(Color.RED);
     Lift lift = new Lift();
@@ -16,7 +19,9 @@ public class MecanumRed extends OpMode {
     Sticky sticky = new Sticky();
     boolean stickyMode = false;
     boolean yIsPressed = true;
+    boolean driversNotifiedEndgame = false;
 
+    @Override
     public void init() {
         // Initialize each mechanism
         chassis.init(hardwareMap);
@@ -26,6 +31,11 @@ public class MecanumRed extends OpMode {
         hopper.init(hardwareMap);
         //capper.init(hardwareMap);
         //sticky.init(hardwareMap);
+    }
+
+    public void start(){
+        //Reset time when start button pressed
+        elapsedTime.reset();
     }
 
     @Override
@@ -51,6 +61,16 @@ public class MecanumRed extends OpMode {
             stickyMode = !stickyMode;
         } else if (!gamepad2.y && yIsPressed) {
             yIsPressed = false;
+        }
+
+        //Check if it is endgame yet
+
+        if (elapsedTime.seconds() >= 85 && !driversNotifiedEndgame) { // 85 = 5 seconds before
+            gamepad1.rumbleBlips(3);
+            gamepad2.rumbleBlips(3);
+            driversNotifiedEndgame = true;
+            //telemetry.speak("Endgame 5");
+
         }
 
         telemetry.addData("lift level", lift.liftMotor.getCurrentPosition());
