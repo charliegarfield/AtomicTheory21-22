@@ -14,6 +14,7 @@ public class Capper implements Mechanism {
     public DcMotorEx arm;
     float targetPosition = 0;
     boolean onEncoders = true;
+
     @Override
     public void init(HardwareMap hardwareMap) {
         arm = hardwareMap.get(DcMotorEx.class, "capper");
@@ -22,16 +23,16 @@ public class Capper implements Mechanism {
     }
 
     @Override
-    public void run(Gamepad gamepad, boolean stickyMode) {
-        if(gamepad.y) {
+    public void run(Gamepad gamepad) {
+        if (gamepad.y) {
             // Ability for manual control, which resets the motor's encoder value when done
-            if(onEncoders) {
+            if (onEncoders) {
                 onEncoders = false;
                 arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             arm.setPower(-gamepad.right_stick_y * 0.6);
         } else {
-            if(!onEncoders) {
+            if (!onEncoders) {
                 // Resetting the encoder value
                 arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 targetPosition = 0;
@@ -43,7 +44,7 @@ public class Capper implements Mechanism {
         }
     }
 
-    public void goTo(int position, double power){
+    public void goTo(int position, double power) {
         arm.setTargetPosition(position);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setPower(power);

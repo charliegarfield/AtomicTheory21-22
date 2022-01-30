@@ -22,19 +22,17 @@ public class Sticky implements Mechanism {
     }
 
     @Override
-    public void run(Gamepad gamepad, boolean stickyMode) {
-        if(stickyMode) {
-            if (Math.abs(gamepad.left_stick_y) > .2) {
-                motor.setPower(-gamepad.left_stick_y * 0.8);
-            }
-            if (Math.abs(gamepad.left_stick_x) > .2) {
-                rotatePosition += gamepad.right_stick_x * .1;
-                rotateServo.setPosition(rotatePosition);
-            }
-            if (Math.abs(gamepad.right_stick_y) > .2) {
-                heightPosition += -gamepad.right_stick_y * .1;
-                heightServo.setPosition(heightPosition);
-            }
+    public void run(Gamepad gamepad) {
+        if (Math.abs(gamepad.left_stick_y) > .2) {
+            motor.setPower(-gamepad.left_stick_y * 0.8);
+        }
+        if (Math.abs(gamepad.left_stick_x) > .2) {
+            rotatePosition += gamepad.right_stick_x * .1;
+            rotateServo.setPosition(rotatePosition);
+        }
+        if (Math.abs(gamepad.right_stick_y) > .2) {
+            heightPosition += -gamepad.right_stick_y * .1;
+            heightServo.setPosition(heightPosition);
         }
     }
 }

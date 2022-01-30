@@ -204,9 +204,7 @@ public class MeepMeepTesting {
                         .forward(8)
                         .setReversed(true)
                         .splineTo(new Vector2d(-24, -37), Math.toRadians(45))
-                        .addTemporalMarker(() -> {
-                            System.out.println(blueCarouselBot.getPose());
-                        })
+                        .addTemporalMarker(() -> System.out.println(blueCarouselBot.getPose()))
                         .waitSeconds(1)
                         .setReversed(false)
                         .splineTo(new Vector2d(-60, -36), Math.toRadians(90))
@@ -230,7 +228,7 @@ public class MeepMeepTesting {
                 .addEntity(blueCycleBot)
                 .addEntity(blueCarouselBot)
                 .addEntity(bot3)
-                .addEntity(bot4)
+                .addEntity(redCarouselBot)
                 .start();
     }
 }

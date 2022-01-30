@@ -13,6 +13,7 @@ public class Lift implements Mechanism {
     public DcMotorEx liftMotor;
     float targetPosition = 0;
     boolean onEncoders = true;
+
     @Override
     public void init(HardwareMap hardwareMap) {
         liftMotor = hardwareMap.get(DcMotorEx.class, "lift");
@@ -21,30 +22,28 @@ public class Lift implements Mechanism {
     }
 
     @Override
-    public void run(Gamepad gamepad, boolean stickyMode) {
-        if(!stickyMode) {
-            if (gamepad.x) {
-                // Ability for manual control, which resets the motor's encoder value when done
-                if (onEncoders) {
-                    onEncoders = false;
-                    liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                }
-                liftMotor.setPower(-gamepad.left_stick_y * 0.7);
-            } else {
-                if (!onEncoders) {
-                    // Resetting the encoder value
-                    liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    targetPosition = 0;
-                    onEncoders = true;
-                }
-                targetPosition -= gamepad.left_stick_y * 20;
-                targetPosition = Range.clip(targetPosition, 0, 1475);
-                goTo((int) targetPosition, LIFT_SPEED);
+    public void run(Gamepad gamepad) {
+        if (gamepad.x) {
+            // Ability for manual control, which resets the motor's encoder value when done
+            if (onEncoders) {
+                onEncoders = false;
+                liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
+            liftMotor.setPower(-gamepad.left_stick_y * 0.7);
+        } else {
+            if (!onEncoders) {
+                // Resetting the encoder value
+                liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                targetPosition = 0;
+                onEncoders = true;
+            }
+            targetPosition -= gamepad.left_stick_y * 20;
+            targetPosition = Range.clip(targetPosition, 0, 1475);
+            goTo((int) targetPosition, LIFT_SPEED);
         }
     }
 
-    public void goTo(int position, double power){
+    public void goTo(int position, double power) {
         liftMotor.setTargetPosition(position);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.setPower(power);
