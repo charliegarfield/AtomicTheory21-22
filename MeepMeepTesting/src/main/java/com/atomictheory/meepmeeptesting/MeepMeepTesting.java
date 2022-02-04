@@ -62,7 +62,7 @@ public class MeepMeepTesting {
                         .splineTo(new Vector2d(-18, 40), Math.toRadians(-70))
                         .waitSeconds(1)
                         .setReversed(false)
-                        .splineToLinearHeading(new Pose2d(-62, 63, Math.toRadians(320)), Math.toRadians(110))
+                        .splineToLinearHeading(new Pose2d(-62, 63, Math.toRadians(330)), Math.toRadians(110))
                         .waitSeconds(1)
                         .splineToLinearHeading(new Pose2d(-55, 58, Math.toRadians(90)), Math.toRadians(-90))
                         .forward(8)
@@ -72,7 +72,7 @@ public class MeepMeepTesting {
                         .setReversed(false)
                         .splineTo(new Vector2d(-60, 36), Math.toRadians(270))
                         .build());
-        RoadRunnerBotEntity bot3 = new DefaultBotBuilder(mm)
+        RoadRunnerBotEntity redCycleBot = new DefaultBotBuilder(mm)
                 .setDimensions(11.95, 13.8)
                 .setColorScheme(new ColorSchemeRedDark())
                 .setConstraints(constraints)
@@ -227,7 +227,7 @@ public class MeepMeepTesting {
                 .setBackgroundAlpha(1f)
                 .addEntity(blueCycleBot)
                 .addEntity(blueCarouselBot)
-                .addEntity(bot3)
+                .addEntity(redCycleBot)
                 .addEntity(redCarouselBot)
                 .start();
     }

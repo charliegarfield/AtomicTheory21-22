@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,32 +34,29 @@ public class CycleAutoBlue extends LinearOpMode {
         lift.init(hardwareMap);
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
+        webcam.init(hardwareMap);
 
+        int level = 3;
+
+        drive.setPoseEstimate(new Pose2d(12, 64, Math.toRadians(90)));
 
         TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(new Pose2d(12, 64, Math.toRadians(90)))
-                .strafeRight(1.5)
-                .back(15)
-                .turn(Math.toRadians(40))
-                .back(14)
+                .setReversed(true)
+                .splineTo(new Vector2d(0, 37), Math.toRadians(-135))
                 .build();
 
         TrajectorySequence trajectory2 = drive.trajectorySequenceBuilder(trajectory1.end())
-                .forward(14)
-                .turn(Math.toRadians(50))
-//                .addTemporalMarker(() -> intake.intakeMotor.setPower(1))
-                .forward(45)
-//                .addTemporalMarker(() -> intake.intakeMotor.setPower(0))
+                .setReversed(false)
+                .splineTo(new Vector2d(44, 48), Math.toRadians(0))
                 .build();
-//        TrajectorySequence trajectory3 = drive.trajectorySequenceBuilder(trajectory2.end())
-//                .back(33)
-//                .turn(Math.toRadians(-50))
-//                .back(14)
-//                .build();
-//        TrajectorySequence trajectory4 = drive.trajectorySequenceBuilder(trajectory3.end())
-//                .forward(14)
-//                .turn(Math.toRadians(50))
-//                .forward(30)
-//                .build();
+        TrajectorySequence trajectory3 = drive.trajectorySequenceBuilder(trajectory2.end())
+                .setReversed(true)
+                .splineTo(new Vector2d(0, 37), Math.toRadians(-135))
+                .build();
+        TrajectorySequence trajectory4 = drive.trajectorySequenceBuilder(trajectory3.end())
+                .setReversed(false)
+                .splineTo(new Vector2d(44, 48), Math.toRadians(0))
+                .build();
 
         waitForStart();
 

@@ -25,7 +25,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Disabled
 @Autonomous(name = "(old) Auto (Red)", group = "Sensor")
 public class FullAutoRed extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
@@ -63,7 +62,7 @@ public class FullAutoRed extends LinearOpMode {
         // Start button is pressed
 
         // Get the placement of the shipping element 50 times and pick the most frequent position
-        int level;
+        int level = 0;
         int[] counts = {0,0,0};
         for(int i=0;i<50;i++) {
             delay(10);

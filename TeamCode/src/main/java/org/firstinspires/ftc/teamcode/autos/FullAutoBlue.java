@@ -25,7 +25,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Disabled
 @Autonomous(name = "(old) Auto (Blue)", group = "Sensor")
 public class FullAutoBlue extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();

@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public class Carousel implements Mechanism {
     int colorMultiplier;
-    ElapsedTime timer = new ElapsedTime();
+    public ElapsedTime timer = new ElapsedTime();
     public static PIDCoefficients coeffs = new PIDCoefficients(.008, 0, 0.0001);
 
     public double currentVelocity = 0;
@@ -141,7 +141,7 @@ public class Carousel implements Mechanism {
         // specify coefficients/gains
 // create the controller
         MotionState state = profile.get(timer.time());
-        if (!state.equals(new MotionState(0, 0)) || timer.time() < 0.1) {
+        if (!state.equals(new MotionState(0, 0))|| timer.time() < 0.1) {
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
             controller.setTargetAcceleration(state.getA());

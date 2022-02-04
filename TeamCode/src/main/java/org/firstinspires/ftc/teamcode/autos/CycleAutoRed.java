@@ -32,6 +32,10 @@ public class CycleAutoRed extends LinearOpMode {
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
 
+        webcam.init(hardwareMap);
+
+        int level = webcam.getShippingHubLevel();
+
 
         TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(new Pose2d(12, 64, Math.toRadians(90)))
                 .strafeLeft(1.5)

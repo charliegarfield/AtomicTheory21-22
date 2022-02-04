@@ -101,7 +101,7 @@ public class RRPark3AutoBlue extends LinearOpMode {
                 .splineTo(new Vector2d(-18, 40), Math.toRadians(-70))
                 .build();
         TrajectorySequence goToCarousel = drive.trajectorySequenceBuilder(goToHub.end())
-                .splineToLinearHeading(new Pose2d(-62, -63, Math.toRadians(280)), Math.toRadians(-280))
+                .splineToLinearHeading(new Pose2d(-63, 63, Math.toRadians(330)), Math.toRadians(110))
                 .build();
         TrajectorySequence interruptableSpline = drive.trajectorySequenceBuilder(goToCarousel.end())
                 .splineToLinearHeading(new Pose2d(-55, 58, Math.toRadians(90)), Math.toRadians(-90))
@@ -138,7 +138,11 @@ public class RRPark3AutoBlue extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel);
-        while (opModeIsActive() && carousel.turnCarousel());
+        carousel.timer.reset();
+        while (opModeIsActive() && !carousel.turnCarousel()){
+            drive.update();
+        };
+        drive.followTrajectorySequence(interruptableSpline);
         while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
             drive.update();
             if (pipeline2.calculateYaw(CAMERA_POSITION) != null) {

@@ -149,7 +149,10 @@ public class RRPark2AutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel);
-        while (opModeIsActive() && carousel.turnCarousel());
+        carousel.timer.reset();
+        while (opModeIsActive() && !carousel.turnCarousel()){
+            drive.update();
+        };
         drive.followTrajectorySequenceAsync(interruptableSpline);
         while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
             drive.update();

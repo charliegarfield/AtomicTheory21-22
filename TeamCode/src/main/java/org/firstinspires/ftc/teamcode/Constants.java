@@ -14,8 +14,9 @@ public class Constants {
     public static final int LEVEL_1 = 500;
     public static final int LEVEL_2 = 900;
     public static final int LEVEL_3 = 1300;
-    public static final double HOPPER_BOTTOM = 0.08;
-    public static final double HOPPER_TOP = 0.4;
+    public static final double HOPPER_BOTTOM = 0.5;
+    public static final double HOPPER_TOP = 0.9;
+    public static final double HOPPER_BACK = 0.2;
 
     // Capper Constants:
     public static final double CAPPER_SPEED = 0.3;

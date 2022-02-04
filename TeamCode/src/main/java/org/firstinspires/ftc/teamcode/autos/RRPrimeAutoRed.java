@@ -122,8 +122,8 @@ public class RRPrimeAutoRed extends LinearOpMode {
         TrajectorySequence goToWarehouse = drive.trajectorySequenceBuilder(new Pose2d(new Vector2d(-24, -37), Math.toRadians(225)))
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(30, 67), Math.toRadians(0))
-                .splineTo(new Vector2d(44, 67), Math.toRadians(0))
+                .splineTo(new Vector2d(30, -67), Math.toRadians(0))
+                .splineTo(new Vector2d(44, -67), Math.toRadians(0))
                 .build();
 
 
@@ -157,7 +157,10 @@ public class RRPrimeAutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel);
-        while (opModeIsActive() && carousel.turnCarousel());
+        carousel.timer.reset();
+        while (opModeIsActive() && !carousel.turnCarousel()){
+            drive.update();
+        };
         drive.followTrajectorySequenceAsync(interruptableSpline);
         while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
             drive.update();
