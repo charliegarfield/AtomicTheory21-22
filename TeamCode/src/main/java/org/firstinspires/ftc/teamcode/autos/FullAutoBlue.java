@@ -25,7 +25,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name = "(old) Auto (Blue)", group = "Sensor")
+@Autonomous(name = "(old) Auto (Blue)", group = "Autonomous")
 public class FullAutoBlue extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private MecanumChassis chassis = new MecanumChassis();
@@ -114,10 +114,7 @@ public class FullAutoBlue extends LinearOpMode {
         chassis.moveBackwardWithEncoders(0.3,200);
         chassis.moveForwardWithEncoders(0.5,25);
         chassis.strafeLeftWithEncoders(0.3,500);
-        carousel.turnCarousel();
-        delay(3000);
-        carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        carousel.carouselMotor.setPower(0);
+        while(!carousel.turnCarousel());
 
         // Drive into the warehouse
         chassis.strafeRightWithEncoders(0.6,250);

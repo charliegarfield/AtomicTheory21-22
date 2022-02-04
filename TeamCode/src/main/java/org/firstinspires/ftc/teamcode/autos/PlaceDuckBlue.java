@@ -113,37 +113,39 @@ public class PlaceDuckBlue extends LinearOpMode {
 
         // Drive to the the shipping hub
         chassis.moveBackwardWithEncoders(0.6,100);
-        delay(250);
-        chassis.strafeRightWithEncoders(0.6,1050);
-        delay(250);
-        chassis.moveBackwardWithEncoders(0.6,600);
+        delay(350);
+        chassis.strafeRightWithEncoders(0.5,1050);
+        delay(350);
+        chassis.moveBackwardWithEncoders(0.6,650);
         delay(100);
 
         // Deposit the box on the correct level
         if(level == 1) {
             lift.goTo(LEVEL_1,LIFT_SPEED);
-            delay(300);
+            delay(500);
         } else if (level == 2) {
-            lift.goTo(LEVEL_2-50,LIFT_SPEED);
-            delay(400);
+            lift.goTo(LEVEL_2,LIFT_SPEED);
+            delay(700);
         } else {
             lift.goTo(LEVEL_3, LIFT_SPEED);
-            delay(600);
+            delay(1000);
         }
-        hopper.hopper.setPosition(HOPPER_TOP);
+        hopper.hopper.setPosition(HOPPER_TOP-0.05);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         delay(200);
         lift.goTo(0,LIFT_SPEED);
 
         // Move to the carousel and spin it
-        chassis.moveForwardWithEncoders(0.6,350);
+        chassis.moveForwardWithEncoders(0.6,250);
         chassis.rotateToGlobalAngle(-90,0.6);
         chassis.moveBackwardWithEncoders(0.6,2200);
         chassis.moveBackwardWithEncoders(0.3,200);
-        chassis.moveForwardWithEncoders(0.5,25);
+        chassis.moveForwardWithEncoders(0.5,50);
         chassis.strafeLeftWithEncoders(0.3,350);
-        carousel.turnCarousel();
+        delay(150);
+        chassis.moveForwardWithEncoders(0.5,25);
+        carousel.turnCarouselSimple();
         delay(3000);
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
@@ -179,7 +181,7 @@ public class PlaceDuckBlue extends LinearOpMode {
             chassis.backLeft.setPower(0);
             chassis.backRight.setPower(0);
         } else if(initialPoint.x < 70) {
-            chassis.strafeLeftWithEncoders(0.3,110 - (int)initialPoint.x);
+            chassis.strafeLeftWithEncoders(0.3,150 - (int)initialPoint.x);
         }
         int deltaPos = chassis.frontLeft.getCurrentPosition() - startPos;
 
@@ -191,10 +193,10 @@ public class PlaceDuckBlue extends LinearOpMode {
         // Place the duck
         chassis.moveBackwardWithEncoders(0.6,100);
         delay(200);
-        chassis.rotateToGlobalAngle(0,0.3);
-        chassis.strafeRightWithEncoders(0.8,2100 - deltaPos); // Account for movement to get the duck
+        //chassis.rotateToGlobalAngle(0,0.3);
+        chassis.strafeRightWithEncoders(0.8,1700 - deltaPos); // Account for movement to get the duck
         delay(200);
-        chassis.moveBackwardWithEncoders(0.6,450);
+        chassis.moveBackwardWithEncoders(0.6,700);
         intake.intakeMotor.setPower(0);
         lift.goTo(LEVEL_3,LIFT_SPEED);
         delay(700);
@@ -209,7 +211,7 @@ public class PlaceDuckBlue extends LinearOpMode {
         chassis.rotateToGlobalAngle(-90,0.5);
         chassis.strafeLeftWithEncoders(0.5,750);
         chassis.strafeRightWithEncoders(0.5,10);
-        chassis.moveForwardWithEncoders(0.8, 2600);
+        chassis.moveForwardWithEncoders(0.6, 2000);
         chassis.strafeRightWithEncoders(0.5,50);
     }
 

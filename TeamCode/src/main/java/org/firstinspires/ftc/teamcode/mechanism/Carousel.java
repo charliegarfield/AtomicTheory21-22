@@ -117,11 +117,14 @@ public class Carousel implements Mechanism {
     }
 
     public boolean turnCarousel() {
-//        carouselMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        carouselMotor.setTargetPosition(colorMultiplier * 2500);
-//        carouselMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        carouselMotor.setPower(0.45);
         return followMotionProfile(profile);
+    }
+
+    public void turnCarouselSimple() {
+        carouselMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        carouselMotor.setTargetPosition(colorMultiplier * 2500);
+        carouselMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        carouselMotor.setPower(0.45);
     }
 
     MotionProfile generateMotionProfile(double ticks) {

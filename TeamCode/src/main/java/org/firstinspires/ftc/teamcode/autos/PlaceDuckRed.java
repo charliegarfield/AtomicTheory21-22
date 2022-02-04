@@ -116,19 +116,19 @@ public class PlaceDuckRed extends LinearOpMode {
         delay(300);
         chassis.strafeLeftWithEncoders(0.6,1050);
         delay(300);
-        chassis.moveBackwardWithEncoders(0.6,600);
+        chassis.moveBackwardWithEncoders(0.6,640);
         delay(100);
 
         // Deposit the box on the correct level
         if(level == 1) {
             lift.goTo(LEVEL_1,LIFT_SPEED);
-            delay(300);
+            delay(500);
         } else if (level == 2) {
-            lift.goTo(LEVEL_2,LIFT_SPEED);
-            delay(400);
+            lift.goTo(LEVEL_2-50,LIFT_SPEED);
+            delay(700);
         } else {
             lift.goTo(LEVEL_3, LIFT_SPEED);
-            delay(600);
+            delay(1000);
         }
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
@@ -139,13 +139,13 @@ public class PlaceDuckRed extends LinearOpMode {
         // Move to the carousel and spin it
         chassis.moveForwardWithEncoders(0.6,700);
         chassis.rotateToGlobalAngle(-180,0.6);
-        chassis.moveBackwardWithEncoders(0.3,300);
+        chassis.moveBackwardWithEncoders(0.3,400);
         chassis.moveForwardWithEncoders(0.6,150);
         delay(250);
-        chassis.strafeLeftWithEncoders(0.6,2000);
-        chassis.strafeLeftWithEncoders(0.3,150);
+        chassis.strafeLeftWithEncoders(0.6,1850);
+        chassis.strafeLeftWithEncoders(0.3,300);
         delay(150);
-        carousel.turnCarousel();
+        carousel.turnCarouselSimple();
         delay(3000);
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
@@ -183,18 +183,19 @@ public class PlaceDuckRed extends LinearOpMode {
             chassis.strafeRightWithEncoders(0.3,(int)initialPoint.x - 50);
         }
         int deltaPos = chassis.frontLeft.getCurrentPosition() - startPos;
+        delay(200);
 
         // Pick up the duck
         intake.intakeMotor.setPower(0.9);
-        chassis.moveForwardWithEncoders(0.2,400);
+        chassis.moveForwardWithEncoders(0.2,600);
         delay(1000);
 
         // Place the duck
         chassis.moveBackwardWithEncoders(0.6,100);
         delay(200);
-        chassis.strafeLeftWithEncoders(0.8,2050 + deltaPos); // Account for movement to get the duck
+        chassis.strafeLeftWithEncoders(0.6,2050 + deltaPos); // Account for movement to get the duck
         delay(200);
-        chassis.moveBackwardWithEncoders(0.6,575);
+        chassis.moveBackwardWithEncoders(0.6,630);
         intake.intakeMotor.setPower(0);
         lift.goTo(LEVEL_3,LIFT_SPEED);
         delay(700);
@@ -208,7 +209,9 @@ public class PlaceDuckRed extends LinearOpMode {
         chassis.moveForwardWithEncoders(0.6,500);
         chassis.rotateToGlobalAngle(90,0.5);
         chassis.strafeRightWithEncoders(0.5,750);
-        chassis.moveForwardWithEncoders(0.8, 3000);
+        chassis.strafeLeftWithEncoders(0.5,10);
+        intake.intakeMotor.setPower(0.8);
+        chassis.moveForwardWithEncoders(0.7, 2300);
     }
 
     public void delay(int time) {
