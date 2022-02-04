@@ -141,7 +141,7 @@ public class Carousel implements Mechanism {
         // specify coefficients/gains
 // create the controller
         MotionState state = profile.get(timer.time());
-        if (!state.equals(new MotionState(0, 0))|| timer.time() < 0.1) {
+        if (!state.equals(new MotionState(0, 0)) || timer.time() < 0.1 && state.getA() != 0) {
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
             controller.setTargetAcceleration(state.getA());
