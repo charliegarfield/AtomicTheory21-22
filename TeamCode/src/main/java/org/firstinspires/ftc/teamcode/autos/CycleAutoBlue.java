@@ -1,12 +1,18 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import static org.firstinspires.ftc.teamcode.Constants.HOPPER_BOTTOM;
+import static org.firstinspires.ftc.teamcode.Constants.HOPPER_TOP;
+import static org.firstinspires.ftc.teamcode.Constants.LEVEL_1;
+import static org.firstinspires.ftc.teamcode.Constants.LEVEL_2;
+import static org.firstinspires.ftc.teamcode.Constants.LEVEL_3;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.autos.AutoUtil;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
@@ -15,7 +21,9 @@ import org.firstinspires.ftc.teamcode.mechanism.Intake;
 import org.firstinspires.ftc.teamcode.mechanism.Lift;
 import org.firstinspires.ftc.teamcode.mechanism.Webcam;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
+
+import java.util.LinkedList;
+
 @Autonomous(name="RoadRunner Cycle Auto Blue", group="Autonomous")
 public class CycleAutoBlue extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -34,49 +42,112 @@ public class CycleAutoBlue extends LinearOpMode {
         lift.init(hardwareMap);
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
+
         webcam.init(hardwareMap);
 
         int level = 3;
+        LinkedList<Integer> levels = new LinkedList<>();
+        // Make the level the most common one from the past 100 loops
+        while (!isStarted() && !isStopRequested()) {
+            levels.add(webcam.getShippingHubLevel());
+            if (levels.size() > 100) {
+                levels.removeFirst();
+            }
+        }
+        level = AutoUtil.mostCommon(levels);
 
-        drive.setPoseEstimate(new Pose2d(12, 64, Math.toRadians(90)));
+        Pose2d startPose = new Pose2d(12, 64, Math.toRadians(90));
+        drive.setPoseEstimate(startPose);
 
-        TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(new Pose2d(12, 64, Math.toRadians(90)))
+        TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
-                .splineTo(new Vector2d(0, 37), Math.toRadians(-135))
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
                 .build();
-
-        TrajectorySequence trajectory2 = drive.trajectorySequenceBuilder(trajectory1.end())
+        TrajectorySequence prepareForWarehouse = drive.trajectorySequenceBuilder(trajectory1.end())
                 .setReversed(false)
-                .splineTo(new Vector2d(44, 48), Math.toRadians(0))
+                .splineTo(new Vector2d(16, 64), Math.toRadians(0))
                 .build();
-        TrajectorySequence trajectory3 = drive.trajectorySequenceBuilder(trajectory2.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(0, 37), Math.toRadians(-135))
-                .build();
-        TrajectorySequence trajectory4 = drive.trajectorySequenceBuilder(trajectory3.end())
-                .setReversed(false)
-                .splineTo(new Vector2d(44, 48), Math.toRadians(0))
+        TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
+                .splineTo(new Vector2d(30, 64), Math.toRadians(0))
                 .build();
 
         waitForStart();
 
+        if (level == 1) {
+            lift.goTo(LEVEL_1, 0.8);
+        } else if (level == 2) {
+            lift.goTo(LEVEL_2, 0.8);
+        } else if (level == 3) {
+            lift.goTo(LEVEL_3, 0.8);
+        } else {
+            throw new IllegalStateException("Invalid shipping hub level: " + level);
+        }
         drive.followTrajectorySequence(trajectory1);
-        lift.goTo(1450,0.8);
+        hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
-        hopper.hopper.setPosition(0.33);
-        delay(1200);
-        hopper.hopper.setPosition(0);
+        hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
-        drive.followTrajectorySequence(trajectory2);
-//        drive.followTrajectorySequence(trajectory3);
-//        lift.goTo(1450,0.8);
-//        delay(750);
-//        hopper.hopper.setPosition(0.33);
-//        delay(700);
-//        hopper.hopper.setPosition(0);
-//        lift.goTo(0,0.8);
-//        drive.followTrajectorySequence(trajectory4);
+        drive.followTrajectorySequence(prepareForWarehouse);
+        intake.intakeMotor.setPower(0.8);
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
+        }
+        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .setReversed(true)
+                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
+                .addTemporalMarker(() -> {
+                    intake.intakeMotor.setPower(0);
+                    lift.goTo(LEVEL_3,0.8);
+                })
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
+                .build());
+        hopper.hopper.setPosition(HOPPER_TOP);
+        delay(1200);
+        hopper.hopper.setPosition(HOPPER_BOTTOM);
+        lift.goTo(0,0.8);
+        drive.followTrajectorySequence(prepareForWarehouse);
+        intake.intakeMotor.setPower(0.8);
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
+        }
+        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .setReversed(true)
+                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
+                .addTemporalMarker(() -> {
+                    intake.intakeMotor.setPower(0);
+                    lift.goTo(LEVEL_3,0.8);
+                })
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
+                .build());
+        hopper.hopper.setPosition(HOPPER_TOP);
+        delay(1200);
+        hopper.hopper.setPosition(HOPPER_BOTTOM);
+        lift.goTo(0,0.8);
+        drive.followTrajectorySequence(prepareForWarehouse);
+        intake.intakeMotor.setPower(0.8);
+        runtime.reset();
+        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
+        }
+        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .setReversed(true)
+                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
+                .addTemporalMarker(() -> {
+                    intake.intakeMotor.setPower(0);
+                    lift.goTo(LEVEL_3,0.8);
+                })
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
+                .build());
+        hopper.hopper.setPosition(HOPPER_TOP);
+        delay(1200);
+        hopper.hopper.setPosition(HOPPER_BOTTOM);
+        lift.goTo(0,0.8);
+        drive.followTrajectorySequence(prepareForWarehouse);
+        drive.followTrajectorySequence(finishInWarehouse);
     }
+
 
     public void delay(int time) {
         double startTime = runtime.milliseconds();
