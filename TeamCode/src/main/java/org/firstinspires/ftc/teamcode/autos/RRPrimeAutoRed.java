@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -106,7 +107,7 @@ public class RRPrimeAutoRed extends LinearOpMode {
 //                .back(19)
 //                .build();
                 .setReversed(true)
-                .splineTo(new Vector2d(-18, -40), Math.toRadians(70))
+                .splineTo(new Vector2d(-19, -41), Math.toRadians(70))
                 .build();
         TrajectorySequence goToCarousel = drive.trajectorySequenceBuilder(goToHub.end())
 //                .forward(28)
@@ -117,12 +118,12 @@ public class RRPrimeAutoRed extends LinearOpMode {
                 .splineToLinearHeading(new Pose2d(-62, -63, Math.toRadians(-280)), Math.toRadians(280))
                 .build();
         TrajectorySequence interruptableSpline = drive.trajectorySequenceBuilder(goToCarousel.end())
-                .splineToLinearHeading(new Pose2d(-55, -58, Math.toRadians(-90)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(-55, -58 , Math.toRadians(-90)), Math.toRadians(90))
                 .build();
         TrajectorySequence goToWarehouse = drive.trajectorySequenceBuilder(new Pose2d(new Vector2d(-24, -37), Math.toRadians(225)))
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(30, -67), Math.toRadians(0))
+                .splineTo(new Vector2d(27, -67), Math.toRadians(0))
                 .splineTo(new Vector2d(44, -67), Math.toRadians(0))
                 .build();
 
@@ -157,10 +158,10 @@ public class RRPrimeAutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel);
-        carousel.timer.reset();
-        while (opModeIsActive() && !carousel.turnCarousel()){
-            drive.update();
-        };
+        carousel.turnCarouselSimple();
+        delay(3000);
+        carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        carousel.carouselMotor.setPower(0);
         drive.followTrajectorySequenceAsync(interruptableSpline);
         while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
             drive.update();

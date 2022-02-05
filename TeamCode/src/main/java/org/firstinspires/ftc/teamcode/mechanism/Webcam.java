@@ -44,8 +44,8 @@ public class Webcam {
                         OpenCvCameraFactory.ViewportSplitMethod.HORIZONTALLY); //Whether to split the container vertically or horizontally
         // Setup first camera
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), viewportContainerIds[0]);
-        ShippingElementRecognizer pipeline = new ShippingElementRecognizer();
-        webcam.setPipeline(pipeline);
+        shippingElementRecognizer = new ShippingElementRecognizer();
+        webcam.setPipeline(shippingElementRecognizer);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -61,8 +61,8 @@ public class Webcam {
 
         // Second camera
         frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Webcam"), viewportContainerIds[1]);
-        DuckFinder pipeline2 = new DuckFinder(78);
-        frontWebcam.setPipeline(pipeline2);
+        duckFinder = new DuckFinder(78);
+        frontWebcam.setPipeline(duckFinder);
         frontWebcam.setMillisecondsPermissionTimeout(2500);
         frontWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

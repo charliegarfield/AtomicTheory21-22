@@ -42,7 +42,6 @@ public class CycleAutoBlue extends LinearOpMode {
         lift.init(hardwareMap);
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
-
         webcam.init(hardwareMap);
 
         int level = 3;
@@ -67,6 +66,9 @@ public class CycleAutoBlue extends LinearOpMode {
                 .setReversed(false)
                 .splineTo(new Vector2d(16, 64), Math.toRadians(0))
                 .build();
+        TrajectorySequence goAndIntake = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
+                .splineTo(new Vector2d(50, 64), Math.toRadians(0))
+                .build();
         TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
                 .splineTo(new Vector2d(30, 64), Math.toRadians(0))
                 .build();
@@ -90,9 +92,9 @@ public class CycleAutoBlue extends LinearOpMode {
         drive.followTrajectorySequence(prepareForWarehouse);
         intake.intakeMotor.setPower(0.8);
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
+//        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+//            drive.setDrivePower(new Pose2d(.1, 0, 0));
+//        }
         drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
                 .splineTo(new Vector2d(16, 64), Math.toRadians(180))

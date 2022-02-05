@@ -42,7 +42,6 @@ public class CycleAutoRed extends LinearOpMode {
         lift.init(hardwareMap);
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
-
         webcam.init(hardwareMap);
 
         int level = 3;
@@ -56,7 +55,7 @@ public class CycleAutoRed extends LinearOpMode {
         }
         level = AutoUtil.mostCommon(levels);
 
-        Pose2d startPose = new Pose2d(12, -64, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(12, -64, Math.toRadians(-90));
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(startPose)
@@ -65,10 +64,14 @@ public class CycleAutoRed extends LinearOpMode {
                 .build();
         TrajectorySequence prepareForWarehouse = drive.trajectorySequenceBuilder(trajectory1.end())
                 .setReversed(false)
-                .splineTo(new Vector2d(16, -64), Math.toRadians(0))
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
+                .splineTo(new Vector2d(16, -66), Math.toRadians(0))
+                .build();
+        TrajectorySequence goAndIntake = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
+                .splineTo(new Vector2d(50, -66), Math.toRadians(0))
                 .build();
         TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
-                .splineTo(new Vector2d(30, -64), Math.toRadians(0))
+                .splineTo(new Vector2d(30, -66), Math.toRadians(0))
                 .build();
 
         waitForStart();
@@ -90,12 +93,13 @@ public class CycleAutoRed extends LinearOpMode {
         drive.followTrajectorySequence(prepareForWarehouse);
         intake.intakeMotor.setPower(0.8);
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
+//        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+//            drive.setDrivePower(new Pose2d(.1, 0, 0));
+//        }
+        drive.followTrajectorySequence(goAndIntake);
         drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
-                .splineTo(new Vector2d(16, -64), Math.toRadians(180))
+                .splineTo(new Vector2d(16, -66), Math.toRadians(180))
                 .addTemporalMarker(() -> {
                             intake.intakeMotor.setPower(0);
                             lift.goTo(LEVEL_3,0.8);
@@ -105,16 +109,16 @@ public class CycleAutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
         drive.followTrajectorySequence(prepareForWarehouse);
         intake.intakeMotor.setPower(0.8);
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
+//        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+//            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
+//        }
+        drive.followTrajectorySequence(goAndIntake);
         drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
-                .splineTo(new Vector2d(16, -64), Math.toRadians(180))
+                .splineTo(new Vector2d(16, -66), Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     intake.intakeMotor.setPower(0);
                     lift.goTo(LEVEL_3,0.8);
@@ -124,16 +128,16 @@ public class CycleAutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
         drive.followTrajectorySequence(prepareForWarehouse);
         intake.intakeMotor.setPower(0.8);
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
+//        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
+//            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
+//        }
+        drive.followTrajectorySequence(goAndIntake);
         drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
-                .splineTo(new Vector2d(16, -64), Math.toRadians(180))
+                .splineTo(new Vector2d(16, -66), Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     intake.intakeMotor.setPower(0);
                     lift.goTo(LEVEL_3,0.8);
@@ -143,7 +147,6 @@ public class CycleAutoRed extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
         drive.followTrajectorySequence(prepareForWarehouse);
         drive.followTrajectorySequence(finishInWarehouse);
     }
