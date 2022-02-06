@@ -124,7 +124,7 @@ public class PlaceDuckRed extends LinearOpMode {
             lift.goTo(LEVEL_1,LIFT_SPEED);
             delay(500);
         } else if (level == 2) {
-            lift.goTo(LEVEL_2-50,LIFT_SPEED);
+            lift.goTo(LEVEL_2,LIFT_SPEED);
             delay(700);
         } else {
             lift.goTo(LEVEL_3, LIFT_SPEED);

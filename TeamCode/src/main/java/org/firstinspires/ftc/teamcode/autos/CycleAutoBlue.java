@@ -72,7 +72,7 @@ public class CycleAutoBlue extends LinearOpMode {
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
                 .splineTo(new Vector2d(16, 66), Math.toRadians(-180))
-                .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
                     intake.intakeMotor.setPower(-.3);
                 })
                 .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
