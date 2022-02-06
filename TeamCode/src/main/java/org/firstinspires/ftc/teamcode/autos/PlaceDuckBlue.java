@@ -223,7 +223,7 @@ public class PlaceDuckBlue extends LinearOpMode {
         chassis.moveBackwardWithEncoders(0.3,150);
         chassis.moveForwardWithEncoders(0.6,400);
         chassis.rotateToGlobalAngle(-90,0.5);
-        chassis.moveForwardWithEncoders(0.6,3000);
+        chassis.moveForwardWithEncoders(0.6,5000);
     }
 
     public void delay(int time) {

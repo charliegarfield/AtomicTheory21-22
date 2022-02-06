@@ -221,7 +221,7 @@ public class PlaceDuckRed extends LinearOpMode {
         chassis.strafeRightWithEncoders(0.6,50);
         chassis.moveForwardWithEncoders(0.6,200);
         chassis.rotateToGlobalAngle(90,0.5);
-        chassis.moveForwardWithEncoders(0.6,3000);
+        chassis.moveForwardWithEncoders(0.6,4500);
 
     }
 
