@@ -107,7 +107,7 @@ public class RRPrimeAutoBlue extends LinearOpMode {
         TrajectorySequence interruptableSpline = drive.trajectorySequenceBuilder(goToCarousel.end())
                 .splineToLinearHeading(new Pose2d(-55, 58, Math.toRadians(90)), Math.toRadians(-90))
                 .build();
-        TrajectorySequence goToWarehouse = drive.trajectorySequenceBuilder(new Pose2d(new Vector2d(-24, 37), Math.toRadians(45)))
+        TrajectorySequence goToWarehouse = drive.trajectorySequenceBuilder(interruptableSpline.end())
                 .setReversed(false)
                 .splineTo(new Vector2d(30, 64), Math.toRadians(0))
                 .splineTo(new Vector2d(44, 64), Math.toRadians(0))
@@ -144,36 +144,36 @@ public class RRPrimeAutoBlue extends LinearOpMode {
         delay(3000);
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
-        drive.followTrajectorySequenceAsync(interruptableSpline);
-        while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
-            drive.update();
-            if (pipeline2.calculateYaw(CAMERA_POSITION) != null) {
-                telemetry.addData("Yaw", -pipeline2.calculateYaw(CAMERA_POSITION));
-            }
-            // Wait for the camera to detect a duck
-        }
-        if (pipeline2.calculateYaw(CAMERA_POSITION) != null) {
-            drive.turn(-pipeline2.calculateYaw(CAMERA_POSITION));
-            telemetry.addData("Yaw", -pipeline2.calculateYaw(CAMERA_POSITION));
-            telemetry.update();
-        }
-        TrajectorySequence pickUpDuck = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .forward(8)
-                .build();
-        drive.followTrajectorySequence(pickUpDuck);
-        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(pickUpDuck.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-24, 37), Math.toRadians(-45))
-                .addTemporalMarker(-2, () -> {
-                    intake.intakeMotor.setPower(0);
-                    lift.goTo(LEVEL_3, 0.8);
-                })
-                .build();
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
-        lift.goTo(0,0.8);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
+        drive.followTrajectorySequence(interruptableSpline);
+//        while (opModeIsActive() && pipeline2.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
+//            drive.update();
+//            if (pipeline2.calculateYaw(CAMERA_POSITION) != null) {
+//                telemetry.addData("Yaw", -pipeline2.calculateYaw(CAMERA_POSITION));
+//            }
+//            // Wait for the camera to detect a duck
+//        }
+//        if (pipeline2.calculateYaw(CAMERA_POSITION) != null) {
+//            drive.turn(-pipeline2.calculateYaw(CAMERA_POSITION));
+//            telemetry.addData("Yaw", -pipeline2.calculateYaw(CAMERA_POSITION));
+//            telemetry.update();
+//        }
+//        TrajectorySequence pickUpDuck = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+//                .forward(8)
+//                .build();
+//        drive.followTrajectorySequence(pickUpDuck);
+//        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(pickUpDuck.end())
+//                .setReversed(true)
+//                .splineTo(new Vector2d(-24, 37), Math.toRadians(-45))
+//                .addTemporalMarker(-2, () -> {
+//                    intake.intakeMotor.setPower(0);
+//                    lift.goTo(LEVEL_3, 0.8);
+//                })
+//                .build();
+//        drive.followTrajectorySequence(returnToHub);
+//        hopper.hopper.setPosition(HOPPER_TOP);
+//        delay(1200);
+//        lift.goTo(0,0.8);
+//        hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(goToWarehouse);
 
 
