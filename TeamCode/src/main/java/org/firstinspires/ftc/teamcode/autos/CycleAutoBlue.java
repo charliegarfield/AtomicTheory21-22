@@ -32,7 +32,7 @@ public class CycleAutoBlue extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Carousel carousel = new Carousel(Color.BLUE);
+        Carousel carousel = new Carousel(Color.RED);
         Lift lift = new Lift();
         Hopper hopper = new Hopper();
         Intake intake = new Intake();
@@ -58,19 +58,33 @@ public class CycleAutoBlue extends LinearOpMode {
         Pose2d startPose = new Pose2d(12, 64, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence trajectory1 = drive.trajectorySequenceBuilder(startPose)
+        TrajectorySequence goToHub = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
                 .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
                 .build();
-        TrajectorySequence prepareForWarehouse = drive.trajectorySequenceBuilder(trajectory1.end())
+        TrajectorySequence enterWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
                 .setReversed(false)
-                .splineTo(new Vector2d(16, 64), Math.toRadians(0))
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
+                .splineTo(new Vector2d(16, 66), Math.toRadians(0))
+                .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
+                .splineTo(new Vector2d(50, 66), Math.toRadians(0))
                 .build();
-        TrajectorySequence goAndIntake = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
-                .splineTo(new Vector2d(50, 64), Math.toRadians(0))
+        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
+                .setReversed(true)
+                .splineTo(new Vector2d(16, 66), Math.toRadians(-180))
+                .UNSTABLE_addTemporalMarkerOffset(-1, () -> {
+                    intake.intakeMotor.setPower(-.3);
+                })
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
+                .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
+                    intake.intakeMotor.setPower(0);
+                    lift.goTo(LEVEL_3,0.8);
+                })
                 .build();
-        TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(prepareForWarehouse.end())
-                .splineTo(new Vector2d(30, 64), Math.toRadians(0))
+        TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
+                .setReversed(false)
+                .splineTo(new Vector2d(16, 66), Math.toRadians(0))
+                .splineTo(new Vector2d(40, 66), Math.toRadians(0))
                 .build();
 
         waitForStart();
@@ -84,76 +98,37 @@ public class CycleAutoBlue extends LinearOpMode {
         } else {
             throw new IllegalStateException("Invalid shipping hub level: " + level);
         }
-        drive.followTrajectorySequence(trajectory1);
+        drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
-        drive.followTrajectorySequence(prepareForWarehouse);
-        intake.intakeMotor.setPower(0.8);
-        runtime.reset();
-//        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-//            drive.setDrivePower(new Pose2d(.1, 0, 0));
-//        }
-        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .setReversed(true)
-                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
-                .addTemporalMarker(() -> {
-                    intake.intakeMotor.setPower(0);
-                    lift.goTo(LEVEL_3,0.8);
-                })
-                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
-                .build());
+        drive.followTrajectorySequence(enterWarehouse);
+        drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
-        drive.followTrajectorySequence(prepareForWarehouse);
-        intake.intakeMotor.setPower(0.8);
-        runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
-        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .setReversed(true)
-                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
-                .addTemporalMarker(() -> {
-                    intake.intakeMotor.setPower(0);
-                    lift.goTo(LEVEL_3,0.8);
-                })
-                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
-                .build());
+        drive.followTrajectorySequence(enterWarehouse);
+        drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
-        drive.followTrajectorySequence(prepareForWarehouse);
-        intake.intakeMotor.setPower(0.8);
-        runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2/* && !hopper.hasCargo*/){
-            drive.setWeightedDrivePower(new Pose2d(.7, 0, 0));
-        }
-        drive.followTrajectorySequence(drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .setReversed(true)
-                .splineTo(new Vector2d(16, 64), Math.toRadians(180))
-                .addTemporalMarker(() -> {
-                    intake.intakeMotor.setPower(0);
-                    lift.goTo(LEVEL_3,0.8);
-                })
-                .splineTo(new Vector2d(-6, 40), Math.toRadians(110))
-                .build());
+        drive.followTrajectorySequence(enterWarehouse);
+        drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
-        drive.followTrajectorySequence(prepareForWarehouse);
+        drive.followTrajectorySequence(enterWarehouse);
+        drive.followTrajectorySequence(returnToHub);
+        hopper.hopper.setPosition(HOPPER_TOP);
+        delay(1200);
+        hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(finishInWarehouse);
     }
 
 
     public void delay(int time) {
         double startTime = runtime.milliseconds();
-        while (runtime.milliseconds() - startTime < time) {
+        while (runtime.milliseconds() - startTime < time && !isStopRequested()) {
         }
     }
 }
