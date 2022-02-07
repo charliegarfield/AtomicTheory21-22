@@ -219,9 +219,10 @@ public class PlaceDuckRed extends LinearOpMode {
 
         // Drive into the warehouse (NEW)
         chassis.strafeRightWithEncoders(0.6,50);
-        chassis.moveForwardWithEncoders(0.6,200);
+        chassis.moveForwardWithEncoders(0.6,250);
         chassis.rotateToGlobalAngle(90,0.5);
-        chassis.moveForwardWithEncoders(0.6,4500);
+        chassis.moveBackwardWithEncoders(0.6,500);
+        chassis.moveForwardWithEncoders(0.6,5000);
 
     }
 
