@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.mechanism.Color;
 import org.firstinspires.ftc.teamcode.mechanism.Hopper;
 import org.firstinspires.ftc.teamcode.mechanism.Intake;
 import org.firstinspires.ftc.teamcode.mechanism.Lift;
+import org.firstinspires.ftc.teamcode.mechanism.Webcam;
 import org.firstinspires.ftc.teamcode.opencv.DuckFinder;
 import org.firstinspires.ftc.teamcode.opencv.ShippingElementRecognizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -42,53 +43,14 @@ public class RRPrimeAutoBlue extends LinearOpMode {
         Lift lift = new Lift();
         Hopper hopper = new Hopper();
         Intake intake = new Intake();
+        Webcam webcam = new Webcam();
 
         carousel.init(hardwareMap);
         lift.init(hardwareMap);
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
+        webcam.init(hardwareMap);
 
-        OpenCvWebcam webcam;
-        OpenCvWebcam frontWebcam;
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
-                .splitLayoutForMultipleViewports(
-                        cameraMonitorViewId, //The container we're splitting
-                        2, //The number of sub-containers to create
-                        OpenCvCameraFactory.ViewportSplitMethod.HORIZONTALLY); //Whether to split the container vertically or horizontally
-        // Setup first camera
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), viewportContainerIds[0]);
-        ShippingElementRecognizer pipeline = new ShippingElementRecognizer();
-        webcam.setPipeline(pipeline);
-        webcam.setMillisecondsPermissionTimeout(2500);
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                webcam.startStreaming(320, 240, OpenCvCameraRotation.SIDEWAYS_LEFT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                // This will be called if the camera could not be opened
-            }
-        });
-
-        // Second camera
-        frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Webcam"), viewportContainerIds[1]);
-        DuckFinder pipeline2 = new DuckFinder(78);
-        frontWebcam.setPipeline(pipeline2);
-        frontWebcam.setMillisecondsPermissionTimeout(2500);
-        frontWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                frontWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                // This will be called if the camera could not be opened
-            }
-        });
 
         drive.setPoseEstimate(new Pose2d(-36, 64, Math.toRadians(90)));
 
@@ -118,7 +80,7 @@ public class RRPrimeAutoBlue extends LinearOpMode {
         LinkedList<Integer> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
         while (!isStarted() && !isStopRequested()) {
-            levels.add(pipeline.getShippingHubLevel());
+            levels.add(webcam.getShippingHubLevel());
             if (levels.size() > 100) {
                 levels.removeFirst();
             }
