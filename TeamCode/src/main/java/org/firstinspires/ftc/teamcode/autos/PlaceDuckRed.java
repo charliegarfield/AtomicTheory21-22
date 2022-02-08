@@ -150,8 +150,6 @@ public class PlaceDuckRed extends LinearOpMode {
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
 
-        // Commented out for competition
-        /*
         // Locate and move towards the duck
         chassis.strafeRightWithEncoders(0.6,50);
         chassis.moveForwardWithEncoders(0.6,200);
@@ -208,21 +206,9 @@ public class PlaceDuckRed extends LinearOpMode {
         lift.goTo(0,LIFT_SPEED);
 
         // Drive into the warehouse
-        chassis.moveForwardWithEncoders(0.6,500);
+        chassis.moveForwardWithEncoders(0.6,450);
         chassis.rotateToGlobalAngle(90,0.5);
-        chassis.strafeRightWithEncoders(0.5,750);
-        chassis.strafeLeftWithEncoders(0.5,10);
-        intake.intakeMotor.setPower(0.8);
-        chassis.moveForwardWithEncoders(0.7, 2300);
-
-         */
-
-        // Drive into the warehouse (NEW)
-        chassis.strafeRightWithEncoders(0.6,50);
-        chassis.moveForwardWithEncoders(0.6,250);
-        chassis.rotateToGlobalAngle(90,0.5);
-        chassis.moveBackwardWithEncoders(0.6,500);
-        chassis.moveForwardWithEncoders(0.6,5000);
+        chassis.moveForwardWithEncoders(0.7, 3000);
 
     }
 
