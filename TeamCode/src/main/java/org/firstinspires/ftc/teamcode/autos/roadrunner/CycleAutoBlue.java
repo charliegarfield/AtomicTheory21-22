@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autos;
+package org.firstinspires.ftc.teamcode.autos.roadrunner;
 
 import static org.firstinspires.ftc.teamcode.Constants.HOPPER_BOTTOM;
 import static org.firstinspires.ftc.teamcode.Constants.HOPPER_TOP;
@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.autos.AutoUtil;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
@@ -24,8 +24,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.LinkedList;
 
-@Autonomous(name="RoadRunner Cycle Auto Red", group="Autonomous")
-public class CycleAutoRed extends LinearOpMode {
+@Autonomous(name="RoadRunner Cycle Auto Blue", group="Autonomous")
+public class CycleAutoBlue extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
 
@@ -55,27 +55,27 @@ public class CycleAutoRed extends LinearOpMode {
         }
         level = AutoUtil.mostCommon(levels);
 
-        Pose2d startPose = new Pose2d(12, -64, Math.toRadians(-90));
+        Pose2d startPose = new Pose2d(12, 64, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence goToHub = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
-                .splineTo(new Vector2d(-6, -40), Math.toRadians(110))
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
                 .build();
         TrajectorySequence enterWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
                 .setReversed(false)
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
-                .splineTo(new Vector2d(16, -66), Math.toRadians(0))
+                .splineTo(new Vector2d(16, 66), Math.toRadians(0))
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
-                .splineTo(new Vector2d(50, -66), Math.toRadians(0))
+                .splineTo(new Vector2d(50, 66), Math.toRadians(0))
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(10, -66), Math.toRadians(180))
+                .splineTo(new Vector2d(16, 66), Math.toRadians(-180))
                 .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
                     intake.intakeMotor.setPower(-.3);
                 })
-                .splineTo(new Vector2d(-6, -40), Math.toRadians(110))
+                .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
                 .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
                     intake.intakeMotor.setPower(0);
                     lift.goTo(LEVEL_3,0.8);
@@ -83,8 +83,8 @@ public class CycleAutoRed extends LinearOpMode {
                 .build();
         TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
                 .setReversed(false)
-                .splineTo(new Vector2d(16, -66), Math.toRadians(0))
-                .splineTo(new Vector2d(40, -66), Math.toRadians(0))
+                .splineTo(new Vector2d(16, 66), Math.toRadians(0))
+                .splineTo(new Vector2d(40, 66), Math.toRadians(0))
                 .build();
 
         waitForStart();

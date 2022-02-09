@@ -142,7 +142,7 @@ public class Carousel implements Mechanism {
 
     boolean followMotionProfile(MotionProfile profile){
         // specify coefficients/gains
-// create the controller
+        // create the controller
         MotionState state = profile.get(timer.time());
         if (!(state == profile.end())) {
             controller.setTargetPosition(state.getX());
@@ -154,9 +154,9 @@ public class Carousel implements Mechanism {
             currentPosition = carouselMotor.getCurrentPosition();
             targetPosition = state.getX();
             positionError = state.getX() - targetPosition;
-// in each iteration of the control loop
-// measure the position or output variable
-// apply the correction to the input variable
+            // in each iteration of the control loop
+            // measure the position or output variable
+            // apply the correction to the input variable
             correction = controller.update(carouselMotor.getCurrentPosition());
             carouselMotor.setPower(correction);
             return false;

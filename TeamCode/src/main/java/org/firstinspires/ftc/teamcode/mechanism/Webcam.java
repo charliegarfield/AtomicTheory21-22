@@ -34,6 +34,10 @@ public class Webcam {
         return -duckFinder.calculateYaw(Constants.CAMERA_POSITION);
     }
 
+    public Double calculateYaw(double cameraPosition) {
+        return duckFinder.calculateYaw(cameraPosition);
+    }
+
     public void init(HardwareMap hardwareMap) {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

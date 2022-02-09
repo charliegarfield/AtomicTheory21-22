@@ -11,23 +11,13 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
 import com.acmerobotics.roadrunner.kinematics.MecanumKinematics;
 import com.acmerobotics.roadrunner.localization.Localizer;
-import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.profile.MotionProfileBuilder;
-import com.acmerobotics.roadrunner.profile.MotionSegment;
-import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.Angle;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.util.CombinatoricsUtils;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.mechanism.MB1242;
 
 import java.util.ArrayList;
@@ -42,6 +32,14 @@ public class UltrasonicLocalizer implements Localizer {
     MB1242 sensor2;
     MB1242 sensor3;
     MB1242 sensor4;
+    double sensor1XOffset;
+    double sensor2XOffset;
+    double sensor3XOffset;
+    double sensor4XOffset;
+    double sensor1YOffset;
+    double sensor2YOffset;
+    double sensor3YOffset;
+    double sensor4YOffset;
 
     MecanumDrive drive;
 
@@ -57,9 +55,18 @@ public class UltrasonicLocalizer implements Localizer {
         sensor4 = sensors[3];
         this.drive = drive;
     }
+    UltrasonicLocalizer(MB1242[] sensors, MecanumDrive drive, double[] xOffsets, double[] yOffsets) {
+        this(sensors, drive);
+        sensor1XOffset = xOffsets[0];
+        sensor2XOffset = xOffsets[1];
+        sensor3XOffset = xOffsets[2];
+        sensor4XOffset = xOffsets[3];
+        sensor1YOffset = yOffsets[0];
+        sensor2YOffset = yOffsets[1];
+        sensor3YOffset = yOffsets[2];
+        sensor4YOffset = yOffsets[3];
+    }
 
-    double x = 0;
-    double y = 0;
     double theta = 0;
     Pose2d previousPose = new Pose2d(0, 0, 0);
     Pose2d poseEstimate = new Pose2d(0, 0, 0);
