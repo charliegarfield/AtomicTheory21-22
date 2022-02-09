@@ -143,7 +143,7 @@ public class PlaceDuckRed extends LinearOpMode {
         chassis.moveForwardWithEncoders(0.6,150);
         delay(250);
         chassis.strafeLeftWithEncoders(0.6,1850);
-        chassis.strafeLeftWithEncoders(0.3,300);
+        chassis.strafeLeftWithEncoders(0.3,350);
         delay(150);
         carousel.turnCarouselSimple();
         delay(3000);
@@ -193,7 +193,7 @@ public class PlaceDuckRed extends LinearOpMode {
         // Place the duck
         chassis.moveBackwardWithEncoders(0.6,100);
         delay(200);
-        chassis.strafeLeftWithEncoders(0.6,2050 + deltaPos); // Account for movement to get the duck
+        chassis.strafeLeftWithEncoders(0.6,2000 + deltaPos); // Account for movement to get the duck
         delay(200);
         chassis.moveBackwardWithEncoders(0.6,630);
         intake.intakeMotor.setPower(0);
@@ -206,7 +206,7 @@ public class PlaceDuckRed extends LinearOpMode {
         lift.goTo(0,LIFT_SPEED);
 
         // Drive into the warehouse
-        chassis.moveForwardWithEncoders(0.6,450);
+        chassis.moveForwardWithEncoders(0.6,350);
         chassis.rotateToGlobalAngle(90,0.5);
         chassis.moveForwardWithEncoders(0.7, 3000);
 

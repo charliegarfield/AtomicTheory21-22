@@ -149,7 +149,7 @@ public class PlaceDuckBlue extends LinearOpMode {
         delay(3000);
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
-        
+
         // Locate and move towards the duck
         chassis.strafeRightWithEncoders(0.6,50);
         chassis.moveBackwardWithEncoders(0.3,150);
