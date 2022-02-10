@@ -52,6 +52,13 @@ public class CycleAutoBlue extends LinearOpMode {
             if (levels.size() > 100) {
                 levels.removeFirst();
             }
+            if (levels.size() < 30){
+                telemetry.addData("Confidence", "Low");
+            } else if (levels.size() < 60){
+                telemetry.addData("Confidence", "Medium");
+            } else {
+                telemetry.addData("Confidence", "High");
+            }
         }
         level = AutoUtil.mostCommon(levels);
 
@@ -71,10 +78,10 @@ public class CycleAutoBlue extends LinearOpMode {
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(16, 66), Math.toRadians(-180))
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(.5, () -> {
                     intake.intakeMotor.setPower(-.3);
                 })
+                .splineTo(new Vector2d(16, 66), Math.toRadians(-180))
                 .splineTo(new Vector2d(-6, 40), Math.toRadians(-110))
                 .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
                     intake.intakeMotor.setPower(0);
@@ -99,11 +106,6 @@ public class CycleAutoBlue extends LinearOpMode {
             throw new IllegalStateException("Invalid shipping hub level: " + level);
         }
         drive.followTrajectorySequence(goToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(enterWarehouse);
-        drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);

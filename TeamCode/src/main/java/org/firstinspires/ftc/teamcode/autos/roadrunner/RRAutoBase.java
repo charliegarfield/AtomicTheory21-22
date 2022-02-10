@@ -6,9 +6,20 @@ import static org.firstinspires.ftc.teamcode.Constants.HOPPER_TOP;
 import static org.firstinspires.ftc.teamcode.Constants.LEVEL_1;
 import static org.firstinspires.ftc.teamcode.Constants.LEVEL_2;
 import static org.firstinspires.ftc.teamcode.Constants.LEVEL_3;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,12 +33,35 @@ import org.firstinspires.ftc.teamcode.mechanism.Intake;
 import org.firstinspires.ftc.teamcode.mechanism.Lift;
 import org.firstinspires.ftc.teamcode.mechanism.Webcam;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public abstract class RRAutoBase extends LinearOpMode {
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
+    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
+        return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
+
+    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+        return new TrajectorySequenceBuilder(
+                startPose,
+                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
+                MAX_ANG_VEL, MAX_ANG_ACCEL
+        );
+    }
+
     ElapsedTime runtime = new ElapsedTime();
-    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
     abstract Pose2d startingPose();
     abstract Vector2d hubPosition();
     abstract double hubAngle();
@@ -41,6 +75,7 @@ public abstract class RRAutoBase extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Carousel carousel = new Carousel(getColor());
         Lift lift = new Lift();
@@ -54,14 +89,11 @@ public abstract class RRAutoBase extends LinearOpMode {
         intake.init(hardwareMap);
         webcam.init(hardwareMap);
 
-        drive = new SampleMecanumDrive(hardwareMap);
-
         drive.setPoseEstimate(startingPose());
-
 
         delay(500);
 
-        int level = 3;
+        int level;
         LinkedList<Integer> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
         while (!isStarted() && !isStopRequested()) {
@@ -69,6 +101,13 @@ public abstract class RRAutoBase extends LinearOpMode {
             if (levels.size() > 100) {
                 levels.removeFirst();
                 telemetry.addData("Status","Initialized.");
+            }
+            if (levels.size() < 30){
+                telemetry.addData("Confidence", "Low");
+            } else if (levels.size() < 60){
+                telemetry.addData("Confidence", "Medium");
+            } else {
+                telemetry.addData("Confidence", "High");
             }
             telemetry.update();
         }
@@ -94,7 +133,7 @@ public abstract class RRAutoBase extends LinearOpMode {
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
         drive.followTrajectorySequenceAsync(interruptableSpline());
-        while (opModeIsActive() && webcam.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
+        while (opModeIsActive() && drive.isBusy()) {
             drive.update();
             // Wait for the camera to detect a duck
         }
@@ -116,19 +155,21 @@ public abstract class RRAutoBase extends LinearOpMode {
         }
         intake.intakeMotor.setPower(.9);
         TrajectorySequence pickUpDuck = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .forward(8)
+                .forward(10)
                 .build();
         drive.followTrajectorySequence(pickUpDuck);
+        delay(3000);
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(pickUpDuck.end())
                 .setReversed(true)
                 .splineTo(hubPosition(), hubAngle())
-                // When you're .8 second away from the hub, put the lift up and stop the intake
-                .addTemporalMarker(-.8, () -> {
+                // When you're .5 second away from the hub, put the lift up and stop the intake
+                .addTemporalMarker(-.5, () -> {
                     lift.goTo(LEVEL_3, 0.8);
                     intake.intakeMotor.setPower(0);
                 })
                 .build();
         drive.followTrajectorySequence(returnToHub);
+        delay(100);
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1000);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
@@ -137,14 +178,12 @@ public abstract class RRAutoBase extends LinearOpMode {
         telemetry.addData("Warehouse Pose", drive.getPoseEstimate());
         telemetry.update();
         drive.followTrajectorySequence(goToWarehouse());
-
     }
-
 
     public void delay(int time) {
         double startTime = runtime.milliseconds();
+        //noinspection StatementWithEmptyBody
         while (runtime.milliseconds() - startTime < time && !isStopRequested()) {
-            drive.update();
         }
     }
 }

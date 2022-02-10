@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.autos.AutoUtil;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
@@ -49,10 +48,19 @@ public class CycleAutoRed extends LinearOpMode {
         LinkedList<Integer> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
         while (!isStarted() && !isStopRequested()) {
+
             levels.add(webcam.getShippingHubLevel());
             if (levels.size() > 100) {
                 levels.removeFirst();
             }
+            if (levels.size() < 30){
+                telemetry.addData("Confidence", "Low");
+            } else if (levels.size() < 60){
+                telemetry.addData("Confidence", "Medium");
+            } else {
+                telemetry.addData("Confidence", "High");
+            }
+            telemetry.update();
         }
         level = AutoUtil.mostCommon(levels);
 
@@ -67,15 +75,15 @@ public class CycleAutoRed extends LinearOpMode {
                 .setReversed(false)
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
                 .splineTo(new Vector2d(16, -66), Math.toRadians(0))
-                .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
+                .addTemporalMarker(() -> intake.intakeMotor.setPower(1))
                 .splineTo(new Vector2d(50, -66), Math.toRadians(0))
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(10, -66), Math.toRadians(180))
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(.5, () -> {
                     intake.intakeMotor.setPower(-.3);
                 })
+                .splineTo(new Vector2d(10, -66), Math.toRadians(180))
                 .splineTo(new Vector2d(-6, -40), Math.toRadians(110))
                 .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
                     intake.intakeMotor.setPower(0);
@@ -101,27 +109,22 @@ public class CycleAutoRed extends LinearOpMode {
         }
         drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
+        delay(800);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(enterWarehouse);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
+        delay(800);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(enterWarehouse);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
+        delay(800);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(enterWarehouse);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(enterWarehouse);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1200);
+        delay(800);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(finishInWarehouse);
     }

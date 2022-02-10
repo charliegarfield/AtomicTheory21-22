@@ -30,7 +30,7 @@ public abstract class RRRedAutoBase extends RRAutoBase{
 
     @Override
     TrajectorySequence goToHub() {
-        return drive.trajectorySequenceBuilder(startingPose())
+        return trajectorySequenceBuilder(startingPose())
                 .setReversed(true)
                 .splineTo(hubPosition(), hubAngle())
                 .build();
@@ -38,21 +38,21 @@ public abstract class RRRedAutoBase extends RRAutoBase{
 
     @Override
     TrajectorySequence goToCarousel() {
-        return drive.trajectorySequenceBuilder(goToHub().end())
-                .splineToLinearHeading(new Pose2d(-62, -63, Math.toRadians(-280)), Math.toRadians(280))
+        return trajectorySequenceBuilder(goToHub().end())
+                .splineToLinearHeading(new Pose2d(-60, -62, Math.toRadians(-280)), Math.toRadians(280))
                 .build();
     }
 
     @Override
     TrajectorySequence interruptableSpline() {
-        return drive.trajectorySequenceBuilder(goToCarousel().end())
+        return trajectorySequenceBuilder(goToCarousel().end())
                 .splineToLinearHeading(new Pose2d(-55, -58 , Math.toRadians(-90)), Math.toRadians(90))
                 .build();
     }
 
     @Override
     TrajectorySequence interruptableStrafe() {
-        return drive.trajectorySequenceBuilder(interruptableSpline().end())
+        return trajectorySequenceBuilder(interruptableSpline().end())
                 .strafeLeft(10)
                 .build();
     }
