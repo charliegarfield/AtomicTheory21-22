@@ -207,12 +207,9 @@ public class PlaceDuckBlue extends LinearOpMode {
         lift.goTo(0,LIFT_SPEED);
 
         // Drive into the warehouse
-        chassis.moveForwardWithEncoders(0.6,500);
+        chassis.moveForwardWithEncoders(0.6,35 0);
         chassis.rotateToGlobalAngle(-90,0.5);
-        chassis.strafeLeftWithEncoders(0.5,750);
-        chassis.strafeRightWithEncoders(0.5,10);
-        chassis.moveForwardWithEncoders(0.6, 2000);
-        chassis.strafeRightWithEncoders(0.5,50);
+        chassis.moveForwardWithEncoders(0.6, 3000);
 
     }
 

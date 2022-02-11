@@ -137,13 +137,13 @@ public class PlaceDuckRed extends LinearOpMode {
         lift.goTo(0,LIFT_SPEED);
 
         // Move to the carousel and spin it
-        chassis.moveForwardWithEncoders(0.6,700);
-        chassis.rotateToGlobalAngle(-180,0.6);
-        chassis.moveBackwardWithEncoders(0.3,400);
-        chassis.moveForwardWithEncoders(0.6,150);
+        chassis.moveForwardWithEncoders(0.6,350);
+        chassis.rotateToGlobalAngle(-180,0.5);
         delay(250);
-        chassis.strafeLeftWithEncoders(0.6,1850);
-        chassis.strafeLeftWithEncoders(0.3,350);
+        chassis.strafeLeftWithEncoders(0.6,2500);
+        chassis.strafeLeftWithEncoders(0.3,150);
+        chassis.strafeRightWithEncoders(0.5,100);
+        chassis.moveBackwardWithEncoders(0.3,300);
         delay(150);
         carousel.turnCarouselSimple();
         delay(3000);
@@ -151,8 +151,8 @@ public class PlaceDuckRed extends LinearOpMode {
         carousel.carouselMotor.setPower(0);
 
         // Locate and move towards the duck
-        chassis.strafeRightWithEncoders(0.6,50);
-        chassis.moveForwardWithEncoders(0.6,200);
+        chassis.moveForwardWithEncoders(0.6,150);
+        chassis.strafeRightWithEncoders(0.6,200);
         chassis.rotateToGlobalAngle(0,0.5);
         delay(100);
         int startPos = chassis.frontLeft.getCurrentPosition();
@@ -168,7 +168,7 @@ public class PlaceDuckRed extends LinearOpMode {
             chassis.frontRight.setPower(0.5);
             chassis.backLeft.setPower(0.5);
             chassis.backRight.setPower(-0.5);
-            while(pipeline2.getDuckCenter() == null || pipeline2.getDuckCenter().x < 30) {
+            while(pipeline2.getDuckCenter() == null || pipeline2.getDuckCenter().x < 25) {
                 // Wait until the duck is even with the intake
                 if(chassis.frontLeft.getCurrentPosition() - startPos < -1800 && pipeline2.getDuckCenter() == null) {
                     // If the robot failed to spin the carousel and/or the duck isn't there, only search for 1800 ticks
@@ -180,7 +180,7 @@ public class PlaceDuckRed extends LinearOpMode {
             chassis.backLeft.setPower(0);
             chassis.backRight.setPower(0);
         } else if(initialPoint.x > 110) {
-            chassis.strafeRightWithEncoders(0.3,(int)initialPoint.x - 50);
+            chassis.strafeRightWithEncoders(0.3,(int)initialPoint.x - 40);
         }
         int deltaPos = chassis.frontLeft.getCurrentPosition() - startPos;
         delay(200);
@@ -195,7 +195,7 @@ public class PlaceDuckRed extends LinearOpMode {
         delay(200);
         chassis.strafeLeftWithEncoders(0.6,2000 + deltaPos); // Account for movement to get the duck
         delay(200);
-        chassis.moveBackwardWithEncoders(0.6,630);
+        chassis.moveBackwardWithEncoders(0.6,650);
         intake.intakeMotor.setPower(0);
         lift.goTo(LEVEL_3,LIFT_SPEED);
         delay(700);
