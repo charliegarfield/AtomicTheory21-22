@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Constants.LEVEL_3;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -67,66 +68,65 @@ public class CycleAutoRed extends LinearOpMode {
         Pose2d startPose = new Pose2d(12, -64, Math.toRadians(-90));
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence goToHub = drive.trajectorySequenceBuilder(startPose)
-                .setReversed(true)
+        Trajectory goToHub = drive.trajectoryBuilder(startPose, true)
                 .splineTo(new Vector2d(-6, -40), Math.toRadians(110))
                 .build();
-        TrajectorySequence enterWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
-                .setReversed(false)
-                .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
+        Trajectory enterWarehouse = drive.trajectoryBuilder(goToHub.end())
+                .addTemporalMarker(1, () -> lift.goTo(0, .8))
                 .splineTo(new Vector2d(16, -66), Math.toRadians(0))
-                .addTemporalMarker(() -> intake.intakeMotor.setPower(1))
+                .addDisplacementMarker(() -> intake.intakeMotor.setPower(1))
                 .splineTo(new Vector2d(50, -66), Math.toRadians(0))
                 .build();
-        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
-                .setReversed(true)
-                .UNSTABLE_addTemporalMarkerOffset(.5, () -> {
+        Trajectory returnToHub = drive.trajectoryBuilder(enterWarehouse.end(), true)
+                .addTemporalMarker(.5, () -> {
                     intake.intakeMotor.setPower(-.3);
                 })
                 .splineTo(new Vector2d(10, -66), Math.toRadians(180))
                 .splineTo(new Vector2d(-6, -40), Math.toRadians(110))
-                .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
+                .addSpatialMarker(new Vector2d(0, -50), () ->{
                     intake.intakeMotor.setPower(0);
                     lift.goTo(LEVEL_3,0.8);
                 })
                 .build();
-        TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
-                .setReversed(false)
+        Trajectory finishInWarehouse = drive.trajectoryBuilder(goToHub.end())
                 .splineTo(new Vector2d(16, -66), Math.toRadians(0))
                 .splineTo(new Vector2d(40, -66), Math.toRadians(0))
                 .build();
 
-        waitForStart();
+        int finalLevel = level;
+        TrajectorySequence sequence = drive.trajectorySequenceBuilder(startPose)
+                .addTemporalMarker(() -> {
+                    if (finalLevel == 1) {
+                        lift.goTo(LEVEL_1, 0.8);
+                    } else if (finalLevel == 2) {
+                        lift.goTo(LEVEL_2, 0.8);
+                    } else if (finalLevel == 3) {
+                        lift.goTo(LEVEL_3, 0.8);
+                    } else {
+                        throw new IllegalStateException("Invalid shipping hub level: " + finalLevel);
+                    }
+                })
+                .addTrajectory(goToHub)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_TOP))
+                .waitSeconds(.8)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_BOTTOM))
+                .addTrajectory(enterWarehouse)
+                .addTrajectory(returnToHub)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_TOP))
+                .waitSeconds(.8)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_BOTTOM))
+                .addTrajectory(enterWarehouse)
+                .addTrajectory(returnToHub)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_TOP))
+                .waitSeconds(.8)
+                .addTemporalMarker(() -> hopper.hopper.setPosition(HOPPER_BOTTOM))
+                .addTrajectory(finishInWarehouse)
+                .build();
 
-        if (level == 1) {
-            lift.goTo(LEVEL_1, 0.8);
-        } else if (level == 2) {
-            lift.goTo(LEVEL_2, 0.8);
-        } else if (level == 3) {
-            lift.goTo(LEVEL_3, 0.8);
-        } else {
-            throw new IllegalStateException("Invalid shipping hub level: " + level);
-        }
-        drive.followTrajectorySequence(goToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(800);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(enterWarehouse);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(800);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(enterWarehouse);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(800);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(enterWarehouse);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        delay(800);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequence(finishInWarehouse);
+
+
+        waitForStart();
+        drive.followTrajectorySequence(sequence);
     }
 
 

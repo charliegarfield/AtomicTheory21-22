@@ -143,10 +143,10 @@ public class PlaceDuckRed extends LinearOpMode {
         chassis.strafeLeftWithEncoders(0.6,2500);
         chassis.strafeLeftWithEncoders(0.3,150);
         chassis.strafeRightWithEncoders(0.5,100);
-        chassis.moveBackwardWithEncoders(0.3,300);
+        chassis.moveBackwardWithEncoders(0.3,350);
         delay(150);
         carousel.turnCarouselSimple();
-        delay(3000);
+        delay(2500);
         carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         carousel.carouselMotor.setPower(0);
 

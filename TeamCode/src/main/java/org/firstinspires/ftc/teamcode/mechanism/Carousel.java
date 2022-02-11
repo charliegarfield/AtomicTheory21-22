@@ -124,7 +124,7 @@ public class Carousel implements Mechanism {
         carouselMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         carouselMotor.setTargetPosition(colorMultiplier * 2500);
         carouselMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        carouselMotor.setPower(0.45);
+        carouselMotor.setPower(0.6);
     }
 
     MotionProfile generateMotionProfile(double ticks) {

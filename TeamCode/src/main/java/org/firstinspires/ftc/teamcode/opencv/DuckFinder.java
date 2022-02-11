@@ -29,6 +29,7 @@ public class DuckFinder extends OpenCvPipeline {
     private double fov;
     private double horizontalFocalLength;
     private double verticalFocalLength;
+    private double verticalThreshold;
 
     boolean duckOnScreen = false;
 
@@ -37,15 +38,16 @@ public class DuckFinder extends OpenCvPipeline {
         else return null;
     }
 
-    public DuckFinder(double fov, double cameraPitchOffset, double cameraYawOffset) {
+    public DuckFinder(double fov, double cameraPitchOffset, double cameraYawOffset, double threshold) {
         super();
         this.fov = fov;
         this.cameraPitchOffset = cameraPitchOffset;
         this.cameraYawOffset = cameraYawOffset;
+        this.verticalThreshold = threshold;
     }
 
     public DuckFinder(double fov) {
-        this(fov, 0, 0);
+        this(fov, 0, 0, 100);
     }
 
     @Override
@@ -68,6 +70,7 @@ public class DuckFinder extends OpenCvPipeline {
     }
 
     // A pipeline that finds and draws contours around the the ducks in the frame
+    // and makes sure all of them are below a certain y value
     @Override
     public Mat processFrame(Mat input) {
         duckRect = null;
@@ -75,8 +78,6 @@ public class DuckFinder extends OpenCvPipeline {
         Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV);
         Scalar lower = new Scalar(22, 60, 50);
         Scalar upper = new Scalar(33, 255, 255);
-//        Scalar lower = new Scalar(0, 0, 0);
-//        Scalar upper = new Scalar(255, 255, 255);
         Core.inRange(mat, lower, upper, mat);
         Imgproc.GaussianBlur(mat, mat, new org.opencv.core.Size(9, 9), 0);
 
@@ -84,7 +85,7 @@ public class DuckFinder extends OpenCvPipeline {
         Imgproc.findContours(mat, duckContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         for (int i = 0; i < duckContours.size(); i++) {
             Rect rect = Imgproc.boundingRect(duckContours.get(i));
-            if (rect.width > 10 && rect.height > 10) {
+            if (rect.width > 10 && rect.height > 10 && rect.y < verticalThreshold) {
                 if (duckRect == null) {
                     duckRect = rect;
                 } else if (rect.area() > duckRect.area()) {
@@ -92,6 +93,9 @@ public class DuckFinder extends OpenCvPipeline {
                 }
             }
         }
+
+        Imgproc.line(mat, new Point(0, verticalThreshold), new Point(mat.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
+
         if (duckRect != null){
             Imgproc.rectangle(input, duckRect, new Scalar(0, 255, 0));
             duckCenter = getCenterofRect(duckRect);
