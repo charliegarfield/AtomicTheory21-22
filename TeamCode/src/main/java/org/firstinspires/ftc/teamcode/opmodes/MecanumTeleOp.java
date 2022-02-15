@@ -54,7 +54,6 @@ abstract public class MecanumTeleOp extends OpMode {
             //TODO: Uncomment when sticky is ready
             //sticky.run(gamepad2);
         } else {
-
             lift.run(gamepad2);
             intake.run(gamepad2);
             hopper.run(gamepad2);
@@ -84,5 +83,4 @@ abstract public class MecanumTeleOp extends OpMode {
         telemetry.addData("back right pos", chassis.backRight.getCurrentPosition());
         telemetry.addData("sticky mode", stickyMode);
     }
-
 }
