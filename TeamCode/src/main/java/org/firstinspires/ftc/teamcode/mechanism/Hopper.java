@@ -61,7 +61,8 @@ public class Hopper implements Mechanism {
         if(dist < 2.5) {
             if(60 < hue && hue < 90 || hue > 100 && value > 0.1) {
                 return HopperContents.BLOCK;
-            } else if (90 < hue && 125 < hue) {
+            }
+            if (90 < hue && hue < 125) {
                 return HopperContents.DUCK;
             }
             return HopperContents.BALL;
