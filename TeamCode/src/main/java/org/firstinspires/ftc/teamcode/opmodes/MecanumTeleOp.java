@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -33,8 +34,7 @@ abstract public class MecanumTeleOp extends OpMode {
         lift.init(hardwareMap);
         intake.init(hardwareMap);
         hopper.init(hardwareMap);
-        //capper.init(hardwareMap);
-        //sticky.init(hardwareMap);
+        sticky.init(hardwareMap);
     }
 
     @Override
@@ -51,8 +51,7 @@ abstract public class MecanumTeleOp extends OpMode {
         carousel.run(gamepad1);
 
         if (stickyMode) {
-            //TODO: Uncomment when sticky is ready
-            //sticky.run(gamepad2);
+            sticky.run(gamepad2);
         } else {
             lift.run(gamepad2);
             intake.run(gamepad2);
@@ -82,5 +81,8 @@ abstract public class MecanumTeleOp extends OpMode {
         telemetry.addData("back left pos", chassis.backLeft.getCurrentPosition());
         telemetry.addData("back right pos", chassis.backRight.getCurrentPosition());
         telemetry.addData("sticky mode", stickyMode);
+        telemetry.addData("rotate servo pos", sticky.rotatePosition);
+        telemetry.addData("height servo pos", sticky.heightPosition);
+        telemetry.addData("hopper contents", hopper.contents());
     }
 }
