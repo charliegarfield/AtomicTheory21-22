@@ -37,11 +37,11 @@ public class Carousel implements Mechanism {
     public DcMotorEx carouselMotor;
     boolean aWasDown = false;
     boolean bWasDown = false;
-    public static double maxVelocity = 1450;
-    public static double maxAcceleration = 3000;
+    public static double maxVelocity = 26000;
+    public static double maxAcceleration = 678;
     // Jerk isn't used if it's 0, but it might end up being necessary
     public static double maxJerk = 0;
-    public static int targetTicks = 2350;
+    public static int targetTicks = 10000;
     double oldMaxVelocity = maxVelocity;
     double oldMaxAcceleration = maxAcceleration;
     double oldMaxJerk = maxJerk;
@@ -133,7 +133,7 @@ public class Carousel implements Mechanism {
         }
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), 0, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), maxAcceleration, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,
@@ -144,7 +144,7 @@ public class Carousel implements Mechanism {
         // specify coefficients/gains
         // create the controller
         MotionState state = profile.get(timer.time());
-        if (!(state == profile.end())) {
+        if (state.getX() < 2500) {
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
             controller.setTargetAcceleration(state.getA());
@@ -161,6 +161,7 @@ public class Carousel implements Mechanism {
             carouselMotor.setPower(correction);
             return false;
         } else {
+            carouselMotor.setPower(0);
             timer.reset();
             return true;
         }
