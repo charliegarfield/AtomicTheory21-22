@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
 import com.acmerobotics.roadrunner.kinematics.MecanumKinematics;
 import com.acmerobotics.roadrunner.localization.Localizer;
@@ -16,62 +13,31 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.mechanism.MB1242;
+import org.firstinspires.ftc.teamcode.util.MathUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class UltrasonicLocalizer implements Localizer {
     public static final double DIST_TOLERANCE = 2.0;
-
+    public final double MAX_SENSOR_DISTANCE = 142;
+    Pose2d poseEstimate;
     ElapsedTime pingTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    MB1242 sensor1;
-    MB1242 sensor2;
-    MB1242 sensor3;
-    MB1242 sensor4;
-    double sensor1XOffset;
-    double sensor2XOffset;
-    double sensor3XOffset;
-    double sensor4XOffset;
-    double sensor1YOffset;
-    double sensor2YOffset;
-    double sensor3YOffset;
-    double sensor4YOffset;
+    private final Map<MB1242, Pose2d> sensorMap;
 
-    MecanumDrive drive;
-
-    /**
-     *
-     * @param sensors An array of 4 MB1242 ultrasonic sensors, in order of the robot's front, right, back, left
-     * @param drive The MecanumDrive object to use for localization
-     */
-    UltrasonicLocalizer(MB1242[] sensors, MecanumDrive drive) {
-        sensor1 = sensors[0];
-        sensor2 = sensors[1];
-        sensor3 = sensors[2];
-        sensor4 = sensors[3];
+    public UltrasonicLocalizer(MecanumDrive drive, Map<MB1242, Pose2d> map){
         this.drive = drive;
+        sensorMap = map;
+        poseEstimate = new Pose2d();
     }
-    UltrasonicLocalizer(MB1242[] sensors, MecanumDrive drive, double[] xOffsets, double[] yOffsets) {
-        this(sensors, drive);
-        sensor1XOffset = xOffsets[0];
-        sensor2XOffset = xOffsets[1];
-        sensor3XOffset = xOffsets[2];
-        sensor4XOffset = xOffsets[3];
-        sensor1YOffset = yOffsets[0];
-        sensor2YOffset = yOffsets[1];
-        sensor3YOffset = yOffsets[2];
-        sensor4YOffset = yOffsets[3];
-    }
+    MecanumDrive drive;
 
     double theta = 0;
     Pose2d previousPose = new Pose2d(0, 0, 0);
-    Pose2d poseEstimate = new Pose2d(0, 0, 0);
     List<Double> lastWheelPositions = new ArrayList<>();
-    Pose2d poseVelocity;
 
 
     public void init(HardwareMap hardwareMap) {
@@ -84,32 +50,11 @@ public class UltrasonicLocalizer implements Localizer {
     }
 
     // A guy on discord said this is about right
-    int MILLIS_PER_CYCLE = 34;
-
-    void pingSensors() {
-        sensor1.ping();
-        sensor2.ping();
-        sensor3.ping();
-        sensor4.ping();
-    }
+    int MILLIS_PER_CYCLE = 40;
 
     final double ROBOT_WIDTH = 11.95;
     final double ROBOT_LENGTH = 13.8;
 
-    // This gets the distances from all 4 sensors and adds the robot width and length
-    // to the distances where necessary
-    double[] getSensorDistances() {
-        double[] distances = new double[4];
-        distances[0] = sensor1.getDistance(DistanceUnit.INCH);
-        distances[1] = sensor2.getDistance(DistanceUnit.INCH);
-        distances[2] = sensor3.getDistance(DistanceUnit.INCH);
-        distances[3] = sensor4.getDistance(DistanceUnit.INCH);
-        distances[0] += ROBOT_LENGTH / 2;
-        distances[1] += ROBOT_WIDTH / 2;
-        distances[2] += ROBOT_LENGTH / 2;
-        distances[3] += ROBOT_WIDTH / 2;
-        return distances;
-    }
 
 
     @NonNull
@@ -128,106 +73,59 @@ public class UltrasonicLocalizer implements Localizer {
     @Nullable
     @Override
     public Pose2d getPoseVelocity() {
-        return poseVelocity;
+        return calculatePoseDeltaEncoders();
     }
 
     @Override
     public void update() {
-        // Calculate the position of the robot based on the ultrasonic sensors and the IMU values
-        // Remember that the field is 12 x 12 feet, and the robot is 11.95 x 13.8 inches
-        // The minimum distance detectable by the ultrasonic sensors is 7.874 inches
-        // The maximum distance is irrelevant, as the robot will never be that far away from a wall
-        theta = drive.getExternalHeading();
-        if (pingTimer.time() > MILLIS_PER_CYCLE) {
-            pingTimer.reset();
-            pingSensors();
-            double[] distances = getSensorDistances();
-
-            ArrayList<Vector2d> averagablePoses = new ArrayList<>();
-            ArrayList<Vector2d> positions = new ArrayList<>();
-
-            // All the different pairs of distances we can use to calculate the position of the robot
-
-            // Make a list of them
-            // For each set, calculate the position of the robot that you could get from those
-            for (int i = 0; i < 4; i++) {
-                double currentTheta = theta + (Math.PI/2 * i);
-                double distance = distances[i];
-                double x = distance * Math.sin(currentTheta);
-                double y = distance * Math.cos(currentTheta);
-                if (x < -0.01) {
-                    x += 144;
+        double heading = drive.getExternalHeading();
+        double accumX = 0, accumY = 0;
+        int totalX = 0, totalY = 0;
+        for(Map.Entry<MB1242, Pose2d> entry : sensorMap.entrySet()){
+            MB1242 sensor = entry.getKey();
+            if (pingTimer.milliseconds() > MILLIS_PER_CYCLE) {
+                pingTimer.reset();
+                Pose2d sensorPose = entry.getValue();
+                double distance = sensor.getDistance(DistanceUnit.INCH);
+                if(distance < MAX_SENSOR_DISTANCE && distance > 8) {
+                    sensorPose = new Pose2d(sensorPose.vec().rotated(heading), Angle.norm(sensorPose.getHeading() + heading));
+                    double change;
+                    switch (MathUtils.closestTo(2*sensorPose.getHeading()/Math.PI,  0, 1, 2, 3, 4)){
+                        case 0: case 4:
+                            change=71-sensorPose.getX()-Math.cos(sensorPose.getHeading())*distance;
+                            if(Math.abs(poseEstimate.getX()-change) > 10) break;
+                            accumX+=change;
+                            totalX++;
+                            break;
+                        case 1:
+                            change=71-sensorPose.getY()-Math.sin(sensorPose.getHeading())*distance;
+                            if(Math.abs(poseEstimate.getY()-change) > 10) break;
+                            accumY+=change;
+                            totalY++;
+                            break;
+                        case 2:
+                            change=71+sensorPose.getX()+Math.cos(sensorPose.getHeading())*distance;
+                            if(Math.abs(poseEstimate.getX()+change) > 10) break;
+                            accumX-=change;
+                            totalX++;
+                            break;
+                        case 3:
+                            change=71+sensorPose.getY()+Math.sin(sensorPose.getHeading())*distance;
+                            if(Math.abs(poseEstimate.getY()+change) > 10) break;
+                            accumY-=change;
+                            totalY++;
+                            break;
+                    }
                 }
-                if (y < -0.01) {
-                    y += 144;
-                }
-                positions.add(new Vector2d(x, y)) ;
+                sensor.ping();
             }
-
-            // Get all the possible combinations of the positions
-            Iterator<int[]> iterator = CombinatoricsUtils.combinationsIterator(positions.size(), 2);
-            List<Vector2d[]> sets = new ArrayList<>(6);
-            while (iterator.hasNext()) {
-                int[] combination = iterator.next();
-                Vector2d first = positions.get(combination[0]);
-                Vector2d second = positions.get(combination[1]);
-                sets.add(new Vector2d[]{first, second});
-            }
-
-            Pose2d previousPose = new Pose2d(72, 72, theta);
-            for (Vector2d[] set : sets) {
-                // For each combination, take the one which is closest to the previous pose in both x and y
-                Vector2d first = set[0];
-                Vector2d second = set[1];
-
-                double firstX = first.getX();
-                double firstY = first.getY();
-                double secondX = second.getX();
-                double secondY = second.getY();
-
-
-                double firstXDistanceFromPrevious = Math.abs(firstX - previousPose.getX());
-                double firstYDistanceFromPrevious = Math.abs(firstY - previousPose.getY());
-                double secondXDistanceFromPrevious = Math.abs(secondX - previousPose.getX());
-                double secondYDistanceFromPrevious = Math.abs(secondY - previousPose.getY());
-
-                Vector2d newVector = new Vector2d(
-                        firstXDistanceFromPrevious < secondXDistanceFromPrevious ? firstX : secondX,
-                        firstYDistanceFromPrevious < secondYDistanceFromPrevious ? firstY : secondY
-                );
-                double poseDifference = newVector.distTo(previousPose.vec());
-                // If the pose difference is too big, we don't use it, since again, it's probably wrong
-                // This is the main filter that makes sure no measurements too insane get used
-                // It is a bit jank though, a Kalman filter would probably be a better way to do this
-                // Also, if the x or y measurements for both are the same, we don't use it
-                double xDifference = Math.abs(set[0].getX() - set[1].getX());
-                double yDifference = Math.abs(set[0].getY() - set[1].getY());
-                if (poseDifference < DIST_TOLERANCE && xDifference > DIST_TOLERANCE * 2 && yDifference > DIST_TOLERANCE * 2) {
-                    averagablePoses.add(newVector);
-                }
-            }
-            // At the end, we average all the realistic poses we found
-            if (averagablePoses.size() > 0) {
-                double xAverage = 0;
-                double yAverage = 0;
-                for (Vector2d pose : averagablePoses) {
-                    xAverage += pose.getX();
-                    yAverage += pose.getY();
-                }
-                xAverage /= averagablePoses.size();
-                yAverage /= averagablePoses.size();
-                poseEstimate = new Pose2d(xAverage, yAverage, theta);
-            } else {
-                // If we didn't find any poses, we use the encoder values instead
-                poseEstimate = calculatePoseEncoders();
-                poseVelocity = calculatePoseDeltaEncoders();
-            }
-        } else {
-            // If we haven't waited long enough, we use the encoder values instead
-            poseEstimate = calculatePoseEncoders();
-            poseVelocity = calculatePoseDeltaEncoders();
         }
-        previousPose = poseEstimate;
+        // This will also be true if the sensors weren't pinged this cycle
+        if (totalX != 0 && totalY != 0) {
+            poseEstimate = new Pose2d(accumX/totalX, accumY/totalY, heading);
+        } else {
+            poseEstimate = calculatePoseEncoders();
+        }
     }
     /**
      * @see com.acmerobotics.roadrunner.drive.MecanumDrive.MecanumLocalizer
@@ -253,7 +151,7 @@ public class UltrasonicLocalizer implements Localizer {
     }
     public Pose2d calculatePoseDeltaEncoders() {
         Pose2d poseVelocity;
-        List<Double> wheelVelocities = drive.getWheelVelocities();
+        List<Double> wheelVelocities = getWheelVelocities();
         if (wheelVelocities != null) {
             poseVelocity = MecanumKinematics.wheelToRobotVelocities(
                     wheelVelocities,

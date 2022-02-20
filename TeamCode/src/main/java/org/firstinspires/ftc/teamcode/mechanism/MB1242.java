@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @I2cDeviceType
 @DeviceProperties(name = "Ultrasonic Sensor", description = "Ultrasonic Distance Sensor from MaxBotix", xmlTag = "MB1242", compatibleControlSystems = ControlSystem.REV_HUB)
-public class MB1242 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements DistanceSensor {
+public class MB1242 extends I2cDeviceSynchDevice<I2cDeviceSynch> implements com.qualcomm.robotcore.hardware.DistanceSensor {
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @Override
     protected boolean doInitialize() {
