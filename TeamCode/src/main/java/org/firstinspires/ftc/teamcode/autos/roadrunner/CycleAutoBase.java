@@ -83,9 +83,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
-                .UNSTABLE_addTemporalMarkerOffset(.5, () -> {
-                    intake.intakeMotor.setPower(-.3);
-                })
+                .addTemporalMarker(() -> intake.intakeMotor.setPower(-.3))
                 .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
                 .splineTo(getHubVector(), getHubAngle())
                 .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
