@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.Constants.LEVEL_3;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -113,19 +112,19 @@ public abstract class CycleAutoBase extends LinearOpMode {
         waitForEmpty(drive, hopper);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForEmptyOrDone(drive, hopper);
+        waitForFullOrDone(drive, hopper);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForEmptyOrDone(drive, hopper);
+        waitForFullOrDone(drive, hopper);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForEmptyOrDone(drive, hopper);
+        waitForFullOrDone(drive, hopper);
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
@@ -139,8 +138,8 @@ public abstract class CycleAutoBase extends LinearOpMode {
         }
     }
 
-    private void waitForEmptyOrDone(SampleMecanumDrive drive, Hopper hopper) {
-        while (hopper.contents() != HopperContents.EMPTY && drive.isBusy() && !isStopRequested()) {
+    private void waitForFullOrDone(SampleMecanumDrive drive, Hopper hopper) {
+        while (hopper.contents() == HopperContents.EMPTY && drive.isBusy() && !isStopRequested()) {
             drive.update();
         }
     }
