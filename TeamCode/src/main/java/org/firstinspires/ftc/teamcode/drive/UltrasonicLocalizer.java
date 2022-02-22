@@ -28,11 +28,12 @@ public class UltrasonicLocalizer implements Localizer {
     ElapsedTime pingTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     private final Map<MB1242, Pose2d> sensorMap;
 
-    public UltrasonicLocalizer(MecanumDrive drive, Map<MB1242, Pose2d> map){
+    public UltrasonicLocalizer(MecanumDrive drive, Map<MB1242, Pose2d> map) {
         this.drive = drive;
         sensorMap = map;
         poseEstimate = new Pose2d();
     }
+
     MecanumDrive drive;
 
     double theta = 0;
@@ -54,7 +55,6 @@ public class UltrasonicLocalizer implements Localizer {
 
     final double ROBOT_WIDTH = 11.95;
     final double ROBOT_LENGTH = 13.8;
-
 
 
     @NonNull
@@ -81,38 +81,38 @@ public class UltrasonicLocalizer implements Localizer {
         double heading = drive.getExternalHeading();
         double accumX = 0, accumY = 0;
         int totalX = 0, totalY = 0;
-        for(Map.Entry<MB1242, Pose2d> entry : sensorMap.entrySet()){
+        for (Map.Entry<MB1242, Pose2d> entry : sensorMap.entrySet()) {
             MB1242 sensor = entry.getKey();
             if (pingTimer.milliseconds() > MILLIS_PER_CYCLE) {
                 pingTimer.reset();
                 Pose2d sensorPose = entry.getValue();
                 double distance = sensor.getDistance(DistanceUnit.INCH);
-                if(distance < MAX_SENSOR_DISTANCE && distance > 8) {
+                if (distance < MAX_SENSOR_DISTANCE && distance > 8) {
                     sensorPose = new Pose2d(sensorPose.vec().rotated(heading), Angle.norm(sensorPose.getHeading() + heading));
                     double change;
-                    switch (MathUtils.closestTo(2*sensorPose.getHeading()/Math.PI,  0, 1, 2, 3, 4)){
+                    switch (MathUtils.closestTo(2 * sensorPose.getHeading() / Math.PI, 0, 1, 2, 3, 4)) {
                         case 0: case 4:
-                            change=71-sensorPose.getX()-Math.cos(sensorPose.getHeading())*distance;
-                            if(Math.abs(poseEstimate.getX()-change) > 10) break;
-                            accumX+=change;
+                            change = 144 - sensorPose.getX() - (Math.cos(sensorPose.getHeading()) * distance);
+                            if (Math.abs(poseEstimate.getX() - change) > 10) break;
+                            accumX += change;
                             totalX++;
                             break;
                         case 1:
-                            change=71-sensorPose.getY()-Math.sin(sensorPose.getHeading())*distance;
-                            if(Math.abs(poseEstimate.getY()-change) > 10) break;
-                            accumY+=change;
+                            change = -144 - sensorPose.getY() + Math.sin(sensorPose.getHeading()) * distance;
+                            if (Math.abs(poseEstimate.getY() - change) > 10) break;
+                            accumY += change;
                             totalY++;
                             break;
                         case 2:
-                            change=71+sensorPose.getX()+Math.cos(sensorPose.getHeading())*distance;
-                            if(Math.abs(poseEstimate.getX()+change) > 10) break;
-                            accumX-=change;
+                            change = -144 - sensorPose.getX() + Math.cos(sensorPose.getHeading()) * distance;
+                            if (Math.abs(poseEstimate.getX() + change) > 10) break;
+                            accumX -= change;
                             totalX++;
                             break;
                         case 3:
-                            change=71+sensorPose.getY()+Math.sin(sensorPose.getHeading())*distance;
-                            if(Math.abs(poseEstimate.getY()+change) > 10) break;
-                            accumY-=change;
+                            change = 144 - sensorPose.getY() - Math.sin(sensorPose.getHeading()) * distance;
+                            if (Math.abs(poseEstimate.getY() + change) > 10) break;
+                            accumY -= change;
                             totalY++;
                             break;
                     }
@@ -122,11 +122,12 @@ public class UltrasonicLocalizer implements Localizer {
         }
         // This will also be true if the sensors weren't pinged this cycle
         if (totalX != 0 && totalY != 0) {
-            poseEstimate = new Pose2d(accumX/totalX, accumY/totalY, heading);
+            poseEstimate = new Pose2d(accumX / totalX, accumY / totalY, heading);
         } else {
             poseEstimate = calculatePoseEncoders();
         }
     }
+
     /**
      * @see com.acmerobotics.roadrunner.drive.MecanumDrive.MecanumLocalizer
      * Basically just that math added to this class because some of it is private
@@ -149,6 +150,7 @@ public class UltrasonicLocalizer implements Localizer {
         lastWheelPositions = wheelPositions;
         return Kinematics.relativeOdometryUpdate(poseEstimate, new Pose2d(robotPoseDelta.vec(), finalHeadingDelta));
     }
+
     public Pose2d calculatePoseDeltaEncoders() {
         Pose2d poseVelocity;
         List<Double> wheelVelocities = getWheelVelocities();
@@ -159,7 +161,7 @@ public class UltrasonicLocalizer implements Localizer {
                     DriveConstants.TRACK_WIDTH,
                     1
             );
-            poseVelocity = new Pose2d(poseVelocity.vec(), drive.getExternalHeadingVelocity()!=null?drive.getExternalHeadingVelocity():0);
+            poseVelocity = new Pose2d(poseVelocity.vec(), drive.getExternalHeadingVelocity() != null ? drive.getExternalHeadingVelocity() : 0);
 
             return poseVelocity;
         }
