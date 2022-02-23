@@ -80,6 +80,10 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
                 .splineTo(getInsideWarehouseVector(), Math.toRadians(0))
                 .build();
+        TrajectorySequence tryAgain = drive.trajectorySequenceBuilder(enterWarehouse.end())
+                .lineTo(new Vector2d(getInsideWarehouseVector().getX() - 5, getInsideWarehouseVector().getY()))
+                .lineTo(getInsideWarehouseVector())
+                .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(-.3))
@@ -95,6 +99,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
                 .splineTo(getInsideWarehouseVector(), Math.toRadians(0))
                 .build();
+
 
         waitForStart();
 
@@ -113,6 +118,10 @@ public abstract class CycleAutoBase extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequenceAsync(enterWarehouse);
         waitForFullOrDone(drive, hopper);
+        while (hopper.contents() == HopperContents.EMPTY) {
+            drive.followTrajectorySequenceAsync(tryAgain);
+            drive.update();
+        }
         drive.followTrajectorySequence(returnToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
