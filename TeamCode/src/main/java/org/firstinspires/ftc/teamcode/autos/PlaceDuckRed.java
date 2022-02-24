@@ -27,6 +27,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import java.util.LinkedList;
+
 @Autonomous(name = "Auto (Red)", group = "Autonomous")
 public class PlaceDuckRed extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
@@ -87,27 +89,27 @@ public class PlaceDuckRed extends LinearOpMode {
             }
         });
 
+        int level = 3;
+        LinkedList<Integer> levels = new LinkedList<>();
+        // Make the level the most common one from the past 100 loops
+        while (!isStarted() && !isStopRequested()) {
+            levels.add(pipeline.getShippingHubLevel());
+            if (levels.size() > 100) {
+                levels.removeFirst();
+            }
+            if (levels.size() < 30){
+                telemetry.addData("Confidence", "Low");
+            } else if (levels.size() < 60){
+                telemetry.addData("Confidence", "Medium");
+            } else {
+                telemetry.addData("Confidence", "High");
+            }
+        }
+        level = AutoUtil.mostCommon(levels);
+
         waitForStart();
         // Start button is pressed
 
-        // Get the placement of the shipping element 100 times and pick the most frequent position
-        int level;
-        int[] counts = {0,0,0};
-        for(int i=0;i<50;i++) {
-            delay(10);
-            if(pipeline.getShippingHubLevel() == 0) {
-                i = 0;
-                continue;
-            }
-            counts[pipeline.getShippingHubLevel() - 1]++;
-        }
-        if(counts[0] > counts[1] && counts[0] > counts[2]) {
-            level = 1;
-        } else if(counts[1] > counts[0] && counts[1] > counts[2]) {
-            level = 2;
-        } else {
-            level = 3;
-        }
         telemetry.addData("Shipping Hub Level", level);
         telemetry.update();
 
