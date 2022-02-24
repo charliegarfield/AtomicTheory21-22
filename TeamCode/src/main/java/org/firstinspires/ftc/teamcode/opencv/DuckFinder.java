@@ -47,7 +47,7 @@ public class DuckFinder extends OpenCvPipeline {
     }
 
     public DuckFinder(double fov) {
-        this(fov, 0, 0, 100);
+        this(fov, 0, 0, 15);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class DuckFinder extends OpenCvPipeline {
         Imgproc.findContours(mat, duckContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         for (int i = 0; i < duckContours.size(); i++) {
             Rect rect = Imgproc.boundingRect(duckContours.get(i));
-            if (rect.width > 10 && rect.height > 10 && rect.y < verticalThreshold) {
+            if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
                 if (duckRect == null) {
                     duckRect = rect;
                 } else if (rect.area() > duckRect.area()) {

@@ -119,6 +119,7 @@ public class WebcamExample extends LinearOpMode
                 telemetry.addLine("No duck found");
             } else {
                 telemetry.addData("Duck 0 x position", pipeline2.getDuckCenter().x);
+                telemetry.addData("Duck 0 y position", pipeline2.getDuckCenter().y);
                 telemetry.addData("Duck yaw", Math.toDegrees(pipeline2.calculateYaw(0)));
             }
             telemetry.update();
