@@ -38,13 +38,14 @@ public class Carousel implements Mechanism {
     boolean aWasDown = false;
     boolean bWasDown = false;
     public static double maxVelocity = 26000;
-    public static double maxAcceleration = 678;
+    public static double maxAcceleration = 800;
     // Jerk isn't used if it's 0, but it might end up being necessary
     public static double maxJerk = 0;
-    public static int targetTicks = 10000;
+    public static int targetTicks = 100000;
     double oldMaxVelocity = maxVelocity;
     double oldMaxAcceleration = maxAcceleration;
     double oldMaxJerk = maxJerk;
+    boolean hasSpun = false;
     PIDFController controller = new PIDFController(coeffs);
 
     MotionProfile profile;
@@ -54,6 +55,7 @@ public class Carousel implements Mechanism {
         carouselMotor = hardwareMap.get(DcMotorEx.class, "carousel");
         profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
         negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - targetTicks * colorMultiplier);
+        carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // carousel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
     }
@@ -87,8 +89,11 @@ public class Carousel implements Mechanism {
                 bWasDown = false;
                 profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
                 timer.reset();
+//                while (!followMotionProfile(profile));
             }
-            followMotionProfile(profile);
+            if (!hasSpun){
+                hasSpun = followMotionProfile(profile);
+            }
         } else if (gamepad.b) {
             if (!bWasDown) {
                 // turnCarousel();
@@ -102,13 +107,14 @@ public class Carousel implements Mechanism {
         } else {
             aWasDown = false;
             bWasDown = false;
+            hasSpun = false;
             carouselMotor.setPower(0);
         }
 
         if (maxVelocity != oldMaxVelocity || maxAcceleration != oldMaxAcceleration || maxJerk != oldMaxJerk) {
             controller = new PIDFController(coeffs);
-            profile = generateMotionProfile(carouselMotor.getCurrentPosition() + 2500 * colorMultiplier);
-            negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - 2500 * colorMultiplier);
+            profile = generateMotionProfile(carouselMotor.getCurrentPosition() + 4000 * colorMultiplier);
+            negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - 4000 * colorMultiplier);
         }
 
         oldMaxVelocity = maxVelocity;
@@ -133,7 +139,7 @@ public class Carousel implements Mechanism {
         }
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), maxAcceleration, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), 1100, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,
@@ -144,7 +150,7 @@ public class Carousel implements Mechanism {
         // specify coefficients/gains
         // create the controller
         MotionState state = profile.get(timer.time());
-        if (state.getX() < 2500) {
+        if (state.getX() < profile.start().getX() + 2650 && colorMultiplier == 1 || state.getX() < profile.start().getX() - 2650 && colorMultiplier == -1) {
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
             controller.setTargetAcceleration(state.getA());
@@ -163,6 +169,7 @@ public class Carousel implements Mechanism {
         } else {
             carouselMotor.setPower(0);
             timer.reset();
+            this.profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
             return true;
         }
     }

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.autos.AutoUtil;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
@@ -78,18 +79,16 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
                 .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
+                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .splineTo(getInsideWarehouseVector(), Math.toRadians(0))
-                .build();
-        TrajectorySequence tryAgain = drive.trajectorySequenceBuilder(enterWarehouse.end())
-                .lineTo(new Vector2d(getInsideWarehouseVector().getX() - 5, getInsideWarehouseVector().getY()))
-                .lineTo(getInsideWarehouseVector())
+                .resetConstraints()
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(-.3))
-                .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
+                .splineTo(getWarehouseEntryVector(), Math.toRadians(180))
                 .splineTo(getHubVector(), getHubAngle())
-                .UNSTABLE_addTemporalMarkerOffset(-1, () ->{
+                .UNSTABLE_addTemporalMarkerOffset(-2, () ->{
                     intake.intakeMotor.setPower(0);
                     lift.goTo(LEVEL_3,0.8);
                 })
@@ -102,7 +101,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
 
 
         waitForStart();
-
+        runtime.reset();
         if (level == 1) {
             lift.goTo(LEVEL_1, 0.8);
         } else if (level == 2) {
@@ -115,29 +114,21 @@ public abstract class CycleAutoBase extends LinearOpMode {
         drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
+        delay(200);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForFullOrDone(drive, hopper);
-        while (hopper.contents() == HopperContents.EMPTY) {
-            drive.followTrajectorySequenceAsync(tryAgain);
-            drive.update();
+        while (runtime.seconds() < 23 && !isStopRequested()) {
+            drive.followTrajectorySequenceAsync(enterWarehouse);
+            waitForFullOrDone(drive, hopper);
+            while (hopper.contents() == HopperContents.EMPTY && opModeIsActive()) {
+                drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
+                drive.update();
+            }
+            drive.followTrajectorySequence(returnToHub);
+            hopper.hopper.setPosition(HOPPER_TOP);
+            waitForEmpty(drive, hopper);
+            delay(200);
+            hopper.hopper.setPosition(HOPPER_BOTTOM);
         }
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        waitForEmpty(drive, hopper);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForFullOrDone(drive, hopper);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        waitForEmpty(drive, hopper);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
-        drive.followTrajectorySequenceAsync(enterWarehouse);
-        waitForFullOrDone(drive, hopper);
-        drive.followTrajectorySequence(returnToHub);
-        hopper.hopper.setPosition(HOPPER_TOP);
-        waitForEmpty(drive, hopper);
-        hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(finishInWarehouse);
     }
 

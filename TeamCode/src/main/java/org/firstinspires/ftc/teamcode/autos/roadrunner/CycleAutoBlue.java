@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos.roadrunner;
 
-import static org.firstinspires.ftc.teamcode.Constants.HOPPER_BOTTOM;
-import static org.firstinspires.ftc.teamcode.Constants.HOPPER_TOP;
-import static org.firstinspires.ftc.teamcode.Constants.LEVEL_1;
-import static org.firstinspires.ftc.teamcode.Constants.LEVEL_2;
-import static org.firstinspires.ftc.teamcode.Constants.LEVEL_3;
+
 
 import androidx.annotation.NonNull;
 
@@ -12,22 +8,6 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.autos.AutoUtil;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.mechanism.Carousel;
-import org.firstinspires.ftc.teamcode.mechanism.Color;
-import org.firstinspires.ftc.teamcode.mechanism.Hopper;
-import org.firstinspires.ftc.teamcode.mechanism.HopperContents;
-import org.firstinspires.ftc.teamcode.mechanism.Intake;
-import org.firstinspires.ftc.teamcode.mechanism.Lift;
-import org.firstinspires.ftc.teamcode.mechanism.Webcam;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-
-import java.util.LinkedList;
 
 @Autonomous(name="RoadRunner Cycle Auto Blue", group="Autonomous")
 public class CycleAutoBlue extends CycleAutoBase {
@@ -49,7 +29,7 @@ public class CycleAutoBlue extends CycleAutoBase {
 
     @Override
     Vector2d getInsideWarehouseVector() {
-        return new Vector2d(40, 66);
+        return new Vector2d(46, 66);
     }
 
     @Override
