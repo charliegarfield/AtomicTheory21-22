@@ -57,7 +57,6 @@ public class Carousel implements Mechanism {
         negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - targetTicks * colorMultiplier);
         carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // carousel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
     }
 
     public void run(Gamepad gamepad) {
@@ -122,6 +121,9 @@ public class Carousel implements Mechanism {
         oldMaxJerk = maxJerk;
     }
 
+    public void regenerateProfile(){
+        profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
+    }
     public boolean turnCarousel() {
         return followMotionProfile(profile);
     }
@@ -137,9 +139,10 @@ public class Carousel implements Mechanism {
         if (ticks == 0){
             return null;
         }
+
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), 1100, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), 1100 * colorMultiplier, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,

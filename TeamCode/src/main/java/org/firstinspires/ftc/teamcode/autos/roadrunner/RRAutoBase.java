@@ -129,7 +129,13 @@ public abstract class RRAutoBase extends LinearOpMode {
         lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel());
         runtime.reset();
-        while (opModeIsActive() && !carousel.turnCarousel() && runtime.seconds() < 5);
+        carousel.regenerateProfile();
+        while (carousel.turnCarousel() && opModeIsActive() && runtime.seconds() < 5);
+        carousel.carouselMotor.setPower(0);
+//        carousel.turnCarouselSimple();
+//        delay(3000);
+//        carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        carousel.carouselMotor.setPower(0);
         drive.followTrajectorySequenceAsync(interruptableSpline());
         while (opModeIsActive() && drive.isBusy()) {
             drive.update();

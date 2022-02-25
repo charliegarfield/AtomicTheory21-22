@@ -11,6 +11,6 @@ import org.firstinspires.ftc.teamcode.mechanism.chassis.MecanumChassis;
 public class MecanumRed extends MecanumTeleOp {
     @Override
     Color getColor() {
-        return Color.BLUE;
+        return Color.RED;
     }
 }
