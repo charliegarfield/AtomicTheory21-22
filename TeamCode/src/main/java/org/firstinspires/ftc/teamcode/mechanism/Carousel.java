@@ -53,6 +53,8 @@ public class Carousel implements Mechanism {
 
     public void init(HardwareMap hardwareMap) {
         carouselMotor = hardwareMap.get(DcMotorEx.class, "carousel");
+        carouselMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        carouselMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
         negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - targetTicks * colorMultiplier);
         carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
