@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
 import org.firstinspires.ftc.teamcode.mechanism.Hopper;
+import org.firstinspires.ftc.teamcode.mechanism.HopperContents;
 import org.firstinspires.ftc.teamcode.mechanism.Intake;
 import org.firstinspires.ftc.teamcode.mechanism.Lift;
 import org.firstinspires.ftc.teamcode.mechanism.Sticky;
@@ -25,6 +26,7 @@ abstract public class MecanumTeleOp extends OpMode {
     boolean stickyMode = false;
     boolean yIsPressed = false;
     boolean driversNotifiedEndgame = false;
+    boolean hadCargo = false;
 
     @Override
     public void init() {
@@ -39,7 +41,7 @@ abstract public class MecanumTeleOp extends OpMode {
 
     @Override
     public void start(){
-        //Reset time when start button pressed
+        // Reset time when start button pressed
         elapsedTime.reset();
     }
 
@@ -66,12 +68,26 @@ abstract public class MecanumTeleOp extends OpMode {
             yIsPressed = false;
         }
 
+        // Notify drivers when cargo is in the hopper
+        if (!hadCargo && hopper.contents() != HopperContents.EMPTY) {
+            if (hopper.contents() == HopperContents.BALL) {
+                gamepad1.rumbleBlips(1);
+                gamepad2.rumbleBlips(1);
+            } else {
+                gamepad1.rumbleBlips(2);
+                gamepad2.rumbleBlips(2);
+            }
+            hadCargo = true;
+        } else if (hadCargo && hopper.contents() == HopperContents.EMPTY) {
+            hadCargo = false;
+        }
 
-        //Check if it is endgame yet
+
+        // Check if it is endgame yet
 
         if (elapsedTime.seconds() >= 85 && !driversNotifiedEndgame) { // 85 = 5 seconds before
-            gamepad1.rumbleBlips(3);
-            gamepad2.rumbleBlips(3);
+            gamepad1.rumbleBlips(4);
+            gamepad2.rumbleBlips(4);
             driversNotifiedEndgame = true;
         }
 
