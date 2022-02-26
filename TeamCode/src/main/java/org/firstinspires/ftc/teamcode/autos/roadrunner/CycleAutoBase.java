@@ -85,7 +85,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .splineTo(getInsideWarehouseVector(), Math.toRadians(0))
-                .resetConstraints()
+                .UNSTABLE_addTemporalMarkerOffset(-.5, () -> drive.setWeightedDrivePower(new Pose2d(.2, 0, 0)))
                 .build();
         TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(enterWarehouse.end())
                 .setReversed(true)
@@ -124,11 +124,10 @@ public abstract class CycleAutoBase extends LinearOpMode {
             drive.followTrajectorySequenceAsync(enterWarehouse);
             waitForFullOrDone(drive, hopper);
             intakeTimer.reset();
-            while (hopper.contents() == HopperContents.EMPTY && opModeIsActive() && intakeTimer.seconds() < 3 && !isStopRequested()) {
-                drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
+            while (hopper.contents() == HopperContents.EMPTY && intakeTimer.seconds() < 3 && !isStopRequested()) {
                 drive.update();
             }
-            while (hopper.contents() == HopperContents.EMPTY) {
+            while (hopper.contents() == HopperContents.EMPTY && !isStopRequested()) {
                 intake.intakeMotor.setPower(-.3);
                 drive.setWeightedDrivePower(new Pose2d(-.2, 0, 0));
                 delay(600, drive);
