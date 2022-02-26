@@ -27,6 +27,12 @@ import java.util.LinkedList;
 
 public abstract class CycleAutoBase extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    ElapsedTime intakeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    Carousel carousel = new Carousel(Color.RED);
+    Lift lift = new Lift();
+    Hopper hopper = new Hopper();
+    Intake intake = new Intake();
+    Webcam webcam = new Webcam();
 
     abstract Pose2d getStartPose();
     abstract Vector2d getHubVector();
@@ -38,11 +44,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Carousel carousel = new Carousel(Color.RED);
-        Lift lift = new Lift();
-        Hopper hopper = new Hopper();
-        Intake intake = new Intake();
-        Webcam webcam = new Webcam();
+
 
         carousel.init(hardwareMap);
         lift.init(hardwareMap);
@@ -58,6 +60,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             if (levels.size() > 100) {
                 levels.removeFirst();
             }
+            telemetry.addData("Level", AutoUtil.mostCommon(levels));
             if (levels.size() < 30){
                 telemetry.addData("Confidence", "Low");
             } else if (levels.size() < 60){
@@ -65,6 +68,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             } else {
                 telemetry.addData("Confidence", "High");
             }
+            telemetry.update();
         }
         level = AutoUtil.mostCommon(levels);
 
@@ -114,19 +118,28 @@ public abstract class CycleAutoBase extends LinearOpMode {
         drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         waitForEmpty(drive, hopper);
-        delay(200);
+        delay(200, drive);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         while (runtime.seconds() < 23 && !isStopRequested()) {
             drive.followTrajectorySequenceAsync(enterWarehouse);
             waitForFullOrDone(drive, hopper);
-            while (hopper.contents() == HopperContents.EMPTY && opModeIsActive()) {
+            intakeTimer.reset();
+            while (hopper.contents() == HopperContents.EMPTY && opModeIsActive() && intakeTimer.seconds() < 3 && !isStopRequested()) {
                 drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
                 drive.update();
+            }
+            while (hopper.contents() == HopperContents.EMPTY) {
+                intake.intakeMotor.setPower(-.3);
+                drive.setWeightedDrivePower(new Pose2d(-.2, 0, 0));
+                delay(600, drive);
+                intake.intakeMotor.setPower(.8);
+                drive.setWeightedDrivePower(new Pose2d(.3, 0, 0));
+                delay(1000, drive);
             }
             drive.followTrajectorySequence(returnToHub);
             hopper.hopper.setPosition(HOPPER_TOP);
             waitForEmpty(drive, hopper);
-            delay(200);
+            delay(200, drive);
             hopper.hopper.setPosition(HOPPER_BOTTOM);
         }
         drive.followTrajectorySequence(finishInWarehouse);
@@ -145,9 +158,10 @@ public abstract class CycleAutoBase extends LinearOpMode {
     }
 
 
-    public void delay(int time) {
+    public void delay(int time, SampleMecanumDrive drive) {
         double startTime = runtime.milliseconds();
         while (runtime.milliseconds() - startTime < time && !isStopRequested()) {
+            drive.update();
         }
     }
 }
