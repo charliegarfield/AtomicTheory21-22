@@ -38,6 +38,7 @@ public abstract class RRBlueAutoBase extends RRAutoBase {
     @Override
     TrajectorySequence goToCarousel() {
         return trajectorySequenceBuilder(goToHub().end())
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0,0.8))
                 .splineToLinearHeading(new Pose2d(-63, 63, Math.toRadians(330)), Math.toRadians(110))
                 .build();
     }

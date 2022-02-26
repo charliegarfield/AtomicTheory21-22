@@ -71,17 +71,18 @@ public abstract class RRAutoBase extends LinearOpMode {
     abstract TrajectorySequence interruptableStrafe();
     abstract TrajectorySequence goToWarehouse();
     abstract Color getColor();
+    Carousel carousel = new Carousel(getColor());
+    Lift lift = new Lift();
+    Hopper hopper = new Hopper();
+    Intake intake = new Intake();
+    Webcam webcam = new Webcam();
 
 
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Carousel carousel = new Carousel(getColor());
-        Lift lift = new Lift();
-        Hopper hopper = new Hopper();
-        Intake intake = new Intake();
-        Webcam webcam = new Webcam();
+
 
         carousel.init(hardwareMap);
         lift.init(hardwareMap);
@@ -126,7 +127,6 @@ public abstract class RRAutoBase extends LinearOpMode {
         hopper.hopper.setPosition(HOPPER_TOP);
         delay(1000);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
-        lift.goTo(0,0.8);
         drive.followTrajectorySequence(goToCarousel());
         runtime.reset();
         carousel.regenerateProfile();
