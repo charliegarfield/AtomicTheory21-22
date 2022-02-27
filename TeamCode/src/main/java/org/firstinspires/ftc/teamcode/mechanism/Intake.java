@@ -17,7 +17,6 @@ public class Intake implements Mechanism {
     public void run(Gamepad gamepad) {
         if (gamepad.right_trigger > 0.5) {
             intakeMotor.setPower(gamepad.right_trigger);
-            intakeOverrideActive = false;
         } else if (gamepad.left_trigger > 0.5) {
             intakeMotor.setPower(-gamepad.left_trigger);
             intakeOverrideActive = false;
