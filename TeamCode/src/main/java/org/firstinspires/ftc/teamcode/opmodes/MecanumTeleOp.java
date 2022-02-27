@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanism.chassis.MecanumChassis;
 
 abstract public class MecanumTeleOp extends OpMode {
     ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    double gainedCargoTime;
     abstract Color getColor();
     MecanumChassis chassis = new MecanumChassis();
     Carousel carousel = new Carousel(getColor());
@@ -78,8 +79,16 @@ abstract public class MecanumTeleOp extends OpMode {
                 gamepad2.rumbleBlips(2);
             }
             hadCargo = true;
+            // Start auto outtake and disable the auto stop
+            intake.overrideOut();
+            gainedCargoTime = elapsedTime.seconds();
         } else if (hadCargo && hopper.contents() == HopperContents.EMPTY) {
             hadCargo = false;
+        }
+
+        // When it's been 3 seconds since we intook, stop the auto outtake
+        if (elapsedTime.time() - gainedCargoTime > 3) {
+            intake.overrideStop();
         }
 
 
