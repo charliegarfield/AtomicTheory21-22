@@ -28,8 +28,13 @@ public class CycleAutoBlue extends CycleAutoBase {
     }
 
     @Override
+    Vector2d getWarehouseExitVector() {
+        return new Vector2d(45, 66);
+    }
+
+    @Override
     Vector2d getInsideWarehouseVector() {
-        return new Vector2d(46, 66);
+        return new Vector2d(50, 66);
     }
 
     @Override
