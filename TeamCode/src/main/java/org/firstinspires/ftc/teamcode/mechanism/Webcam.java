@@ -6,11 +6,13 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.opencv.DuckFinder;
 import org.firstinspires.ftc.teamcode.opencv.ShippingElementRecognizer;
+import org.firstinspires.ftc.teamcode.opencv.kotlin.FreightFinder;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
@@ -18,14 +20,24 @@ import java.util.List;
 public class Webcam {
     OpenCvWebcam webcam;
     OpenCvWebcam frontWebcam;
+    OpenCvPipeline activePipeline;
     ShippingElementRecognizer shippingElementRecognizer;
     DuckFinder duckFinder;
+    FreightFinder freightFinder;
 
     public int getShippingHubLevel() {
         return shippingElementRecognizer.getShippingHubLevel();
     }
 
+    public void switchToDuckPipeline(){
+        frontWebcam.setPipeline(duckFinder);
+        activePipeline = duckFinder;
+    }
 
+    public void switchToFreightPipeline(){
+        frontWebcam.setPipeline(freightFinder);
+        activePipeline = freightFinder;
+    }
     public Point getDuckCenter() {
         return duckFinder.getDuckCenter();
     }
@@ -35,11 +47,14 @@ public class Webcam {
     }
 
     public Double calculateYaw(double cameraPosition) {
-        return duckFinder.calculateYaw(cameraPosition);
+        if (activePipeline == duckFinder) {
+            return duckFinder.calculateYaw(cameraPosition);
+        } else {
+            return freightFinder.calculateYaw(cameraPosition);
+        }
     }
 
     public void init(HardwareMap hardwareMap) {
-
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
                 .splitLayoutForMultipleViewports(
@@ -66,7 +81,9 @@ public class Webcam {
         // Second camera
         frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Webcam"), viewportContainerIds[1]);
         duckFinder = new DuckFinder(78);
+        freightFinder = new FreightFinder(78, 0,0);
         frontWebcam.setPipeline(duckFinder);
+        activePipeline = duckFinder;
         frontWebcam.setMillisecondsPermissionTimeout(2500);
         frontWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
