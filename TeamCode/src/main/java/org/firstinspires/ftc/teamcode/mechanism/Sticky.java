@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.mechanism;
 
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Sticky implements Mechanism {
+    ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    double lastTime;
     CRServo measureServo;
     CRServo rotateServo;
     CRServo heightServo;
@@ -45,5 +45,13 @@ public class Sticky implements Mechanism {
         } else {
             heightServo.setPower(0);
         }
+
+        // This really shouldn't work, needs testing
+        double timeDiff = runtime.time() - lastTime;
+        double heightServoPower = heightServo.getPower();
+        double rotateServoPower = rotateServo.getPower();
+        heightPosition += heightServoPower * timeDiff;
+        rotatePosition += rotateServoPower * timeDiff;
+        lastTime = runtime.time();
     }
 }
