@@ -5,6 +5,7 @@ import org.opencv.core.*
 import org.openftc.easyopencv.OpenCvPipeline
 import org.opencv.imgproc.Imgproc
 import java.util.ArrayList
+import kotlin.math.atan
 
 class FreightFinder(private var fov: Double, private var cameraPitchOffset: Double, private var cameraYawOffset: Double) : OpenCvPipeline() {
     val boxArray: MutableList<Rect> = mutableListOf()
@@ -96,10 +97,10 @@ class FreightFinder(private var fov: Double, private var cameraPitchOffset: Doub
             }
         }
 
-        if(highestBallY > highestBoxY) {
-            closestElement = closestBall
+        closestElement = if(highestBallY > highestBoxY) {
+            closestBall
         } else {
-            closestElement = closestBox
+            closestBox
         }
 
 
@@ -108,7 +109,7 @@ class FreightFinder(private var fov: Double, private var cameraPitchOffset: Doub
         return input
     }
 
-    fun calculateYaw(offsetCenterX: Double): Double? {
-        return Math.atan((closestElement.x - offsetCenterX) / horizontalFocalLength)
+    fun calculateYaw(offsetCenterX: Double): Double {
+        return atan((closestElement.x - offsetCenterX) / horizontalFocalLength)
     }
 }
