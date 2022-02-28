@@ -79,7 +79,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
-    private MB1242 sensor1, sensor2, sensor3, sensor4;
+    //private MB1242 sensor1, sensor2, sensor3, sensor4;
     private VoltageSensor batteryVoltageSensor;
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
@@ -111,10 +111,12 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightRear = hardwareMap.get(DcMotorEx.class, "br");
         rightFront = hardwareMap.get(DcMotorEx.class, "fr");
 
+        /*
         sensor1 = hardwareMap.get(MB1242.class, "sensor1");
         sensor2 = hardwareMap.get(MB1242.class, "sensor2");
         sensor3 = hardwareMap.get(MB1242.class, "sensor3");
         sensor4 = hardwareMap.get(MB1242.class, "sensor4");
+         */
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

@@ -52,7 +52,6 @@ public abstract class CycleAutoBase extends LinearOpMode {
         intake.init(hardwareMap);
         webcam.init(hardwareMap);
 
-        int level = 3;
         LinkedList<Integer> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
         while (!isStarted() && !isStopRequested()) {
@@ -70,7 +69,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             }
             telemetry.update();
         }
-        level = AutoUtil.mostCommon(levels);
+        int level = AutoUtil.mostCommon(levels);
 
         drive.setPoseEstimate(getStartPose());
 
@@ -124,6 +123,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             drive.followTrajectorySequenceAsync(enterWarehouse);
             waitForFullOrDone(drive, hopper);
             intakeTimer.reset();
+            drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
             while (hopper.contents() == HopperContents.EMPTY && intakeTimer.seconds() < 3 && !isStopRequested()) {
                 drive.update();
             }
