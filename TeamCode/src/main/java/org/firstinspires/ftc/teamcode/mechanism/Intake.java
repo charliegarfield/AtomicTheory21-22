@@ -15,15 +15,14 @@ public class Intake implements Mechanism {
 
     @Override
     public void run(Gamepad gamepad) {
-        if (gamepad.right_trigger > 0.5) {
-            intakeMotor.setPower(gamepad.right_trigger);
-        } else if (gamepad.left_trigger > 0.5) {
-            intakeMotor.setPower(-gamepad.left_trigger);
-            intakeOverrideActive = false;
-        } else {
-            if (!intakeOverrideActive) {
+        if (!intakeOverrideActive) {
+            if (gamepad.left_trigger + gamepad.right_trigger > .5) {
+                intakeMotor.setPower(gamepad.right_trigger - gamepad.left_trigger);
+            } else {
                 intakeMotor.setPower(0);
             }
+        } else if (gamepad.right_trigger > 0.5 && gamepad.left_trigger > 0.5) {
+            intakeOverrideActive = false;
         }
     }
 
@@ -33,7 +32,7 @@ public class Intake implements Mechanism {
     }
 
     public void overrideIn() {
-        intakeMotor.setPower(.3);
+        intakeMotor.setPower(.8);
         intakeOverrideActive = true;
     }
 
