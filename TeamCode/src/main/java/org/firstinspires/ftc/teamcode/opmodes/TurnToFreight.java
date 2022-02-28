@@ -24,9 +24,11 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import android.graphics.Path;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.mechanism.chassis.MecanumChassis;
 import org.firstinspires.ftc.teamcode.opencv.kotlin.FreightFinder;
 import org.firstinspires.ftc.teamcode.opencv.DuckFinder;
 import org.firstinspires.ftc.teamcode.opencv.ShippingElementRecognizer;
@@ -42,14 +44,19 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @TeleOp
-public class FreightFinderTest extends LinearOpMode
+public class TurnToFreight extends OpMode
 {
     OpenCvWebcam webcam;
     OpenCvWebcam frontWebcam;
+    MecanumChassis chassis = new MecanumChassis();
+    ShippingElementRecognizer pipeline = new ShippingElementRecognizer();
+    FreightFinder pipeline2 = new FreightFinder(78, 0, 0);
 
     @Override
-    public void runOpMode()
-    {
+    public void init() {
+
+        chassis.init(hardwareMap);
+
         // Setup for multiple cameras
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
@@ -60,7 +67,6 @@ public class FreightFinderTest extends LinearOpMode
 
         // Setup first camera
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), viewportContainerIds[0]);
-        ShippingElementRecognizer pipeline = new ShippingElementRecognizer();
         webcam.setPipeline(pipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -77,7 +83,6 @@ public class FreightFinderTest extends LinearOpMode
 
         // Second camera
         frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Webcam"), viewportContainerIds[1]);
-        FreightFinder pipeline2 = new FreightFinder(78,0,0);
         frontWebcam.setPipeline(pipeline2);
         frontWebcam.setMillisecondsPermissionTimeout(2500);
         frontWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -94,77 +99,67 @@ public class FreightFinderTest extends LinearOpMode
 
         telemetry.addLine("Waiting for start");
         telemetry.update();
+    }
 
-        /*
-         * Wait for the user to press start on the Driver Station
-         */
-        waitForStart();
-
-        while (opModeIsActive())
-        {
-            /*
-             * Send some stats to the telemetry
-             */
-            telemetry.addData("Frame Count", webcam.getFrameCount());
-            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
-            telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
-            telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
-            telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
-            telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
+    public void loop() {
+        telemetry.addData("Frame Count", webcam.getFrameCount());
+        telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
+        telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
+        telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
+        telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
+        telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
 //            telemetry.addData("number of white contours", freightFinder.getWhiteContours().size());
 //            telemetry.addData("number of orange contours", freightFinder.getYellowContours().size());
-            telemetry.addData("shippinghublevel", pipeline.getShippingHubLevel());
-            telemetry.addData("leftrectaverage", pipeline.getLeftValue());
-            telemetry.addData("rightrectaverage", pipeline.getRightValue());
-            Rect box = pipeline2.getClosestBox();
-            Rect ball = pipeline2.getClosestBall();
-            Rect closestElement = pipeline2.getClosestElement();
-            telemetry.addData("closest box x", box.x);
-            telemetry.addData("closest box y", box.y);
-            telemetry.addData("closest ball x", ball.x);
-            telemetry.addData("closest ball y", ball.y);
-            String closest = box.y > ball.y ? "box" : "ball";
-            telemetry.addLine("The closest element is a " + closest + " at (" + closestElement.x + ", " + closestElement.y + ")");
-            telemetry.addData("yaw to element", Math.toDegrees(-pipeline2.calculateYaw(130)));
+        telemetry.addData("shippinghublevel", pipeline.getShippingHubLevel());
+        telemetry.addData("leftrectaverage", pipeline.getLeftValue());
+        telemetry.addData("rightrectaverage", pipeline.getRightValue());
+        Rect box = pipeline2.getClosestBox();
+        Rect ball = pipeline2.getClosestBall();
+        Rect closestElement = pipeline2.getClosestElement();
+        telemetry.addData("closest box x", box.x);
+        telemetry.addData("closest box y", box.y);
+        telemetry.addData("closest ball x", ball.x);
+        telemetry.addData("closest ball y", ball.y);
+        String closest = box.y > ball.y ? "box" : "ball";
+        telemetry.addLine("The closest element is a " + closest + " at (" + closestElement.x + ", " + closestElement.y + ")");
+        double deg = Math.toDegrees(-pipeline2.calculateYaw(130));
+        telemetry.addData("yaw to element", deg);
 
-            telemetry.update();
+        telemetry.update();
 
+        double pow = deg / 90.0 * 0.9;
+        chassis.frontLeft.setPower(-pow);
+        chassis.backLeft.setPower(-pow);
+        chassis.frontRight.setPower(pow);
+        chassis.backRight.setPower(pow);
+
+        /*
+         * NOTE: stopping the stream from the camera early (before the end of the OpMode
+         * when it will be automatically stopped for you) *IS* supported. The "if" statement
+         * below will stop streaming from the camera when the "A" button on gamepad 1 is pressed.
+         */
+        if (gamepad1.a) {
             /*
-             * NOTE: stopping the stream from the camera early (before the end of the OpMode
-             * when it will be automatically stopped for you) *IS* supported. The "if" statement
-             * below will stop streaming from the camera when the "A" button on gamepad 1 is pressed.
+             * IMPORTANT NOTE: calling stopStreaming() will indeed stop the stream of images
+             * from the camera (and, by extension, stop calling your vision pipeline). HOWEVER,
+             * if the reason you wish to stop the stream early is to switch use of the camera
+             * over to, say, Vuforia or TFOD, you will also need to call closeCameraDevice()
+             * (commented out below), because according to the Android Camera API documentation:
+             *         "Your application should only have one Camera object active at a time for
+             *          a particular hardware camera."
+             *
+             * NB: calling closeCameraDevice() will internally call stopStreaming() if applicable,
+             * but it doesn't hurt to call it anyway, if for no other reason than clarity.
+             *
+             * NB2: if you are stopping the camera stream to simply save some processing power
+             * (or battery power) for a short while when you do not need your vision pipeline,
+             * it is recommended to NOT call closeCameraDevice() as you will then need to re-open
+             * it the next time you wish to activate your vision pipeline, which can take a bit of
+             * time. Of course, this comment is irrelevant in light of the use case described in
+             * the above "important note".
              */
-            if(gamepad1.a)
-            {
-                /*
-                 * IMPORTANT NOTE: calling stopStreaming() will indeed stop the stream of images
-                 * from the camera (and, by extension, stop calling your vision pipeline). HOWEVER,
-                 * if the reason you wish to stop the stream early is to switch use of the camera
-                 * over to, say, Vuforia or TFOD, you will also need to call closeCameraDevice()
-                 * (commented out below), because according to the Android Camera API documentation:
-                 *         "Your application should only have one Camera object active at a time for
-                 *          a particular hardware camera."
-                 *
-                 * NB: calling closeCameraDevice() will internally call stopStreaming() if applicable,
-                 * but it doesn't hurt to call it anyway, if for no other reason than clarity.
-                 *
-                 * NB2: if you are stopping the camera stream to simply save some processing power
-                 * (or battery power) for a short while when you do not need your vision pipeline,
-                 * it is recommended to NOT call closeCameraDevice() as you will then need to re-open
-                 * it the next time you wish to activate your vision pipeline, which can take a bit of
-                 * time. Of course, this comment is irrelevant in light of the use case described in
-                 * the above "important note".
-                 */
-                webcam.stopStreaming();
-                //webcam.closeCameraDevice();
-            }
-
-            /*
-             * For the purposes of this sample, throttle ourselves to 10Hz loop to avoid burning
-             * excess CPU cycles for no reason. (By default, telemetry is only sent to the DS at 4Hz
-             * anyway). Of course in a real OpMode you will likely not want to do this.
-             */
-            sleep(100);
+            webcam.stopStreaming();
+            //webcam.closeCameraDevice();
         }
     }
 }
