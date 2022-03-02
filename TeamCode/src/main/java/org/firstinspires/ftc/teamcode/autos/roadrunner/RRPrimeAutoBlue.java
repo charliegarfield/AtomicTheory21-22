@@ -10,11 +10,11 @@ public class RRPrimeAutoBlue extends RRBlueAutoBase{
 
     @Override
     TrajectorySequence goToWarehouse() {
-        return trajectorySequenceBuilder(new Pose2d(-24, 37, Math.toRadians(-45)))
+        return trajectorySequenceBuilder(goToHub().end())
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(30, 64), Math.toRadians(0))
-                .splineTo(new Vector2d(44, 64), Math.toRadians(0))
+                .splineTo(new Vector2d(10, 67), Math.toRadians(0))
+                .splineTo(new Vector2d(44, 67), Math.toRadians(0))
                 .build();
     }
 }

@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class Carousel implements Mechanism {
-    int colorMultiplier;
+    public int colorMultiplier;
     public ElapsedTime timer = new ElapsedTime();
     public static PIDCoefficients coeffs = new PIDCoefficients(.008, 0, 0.0001);
 

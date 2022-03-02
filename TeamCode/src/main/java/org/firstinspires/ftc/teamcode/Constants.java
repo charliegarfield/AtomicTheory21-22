@@ -12,7 +12,7 @@ public class Constants {
     // Lift Constants:
     public static final double LIFT_SPEED = 0.8;
     public static final int LEVEL_1 = 550;
-    public static final int LEVEL_2 = 900;
+    public static final int LEVEL_2 = 750;
     public static final int LEVEL_3 = 1300;
     public static final double HOPPER_BOTTOM = 0.45;
     public static final double HOPPER_TOP = 0.8;
@@ -22,5 +22,5 @@ public class Constants {
     public static final double CAPPER_SPEED = 0.3;
 
     // Camera Constants:
-    public static final double CAMERA_POSITION = 100;
+    public static final double CAMERA_POSITION = 160;
 }

@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Carousel;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
 import org.firstinspires.ftc.teamcode.mechanism.Hopper;
+import org.firstinspires.ftc.teamcode.mechanism.HopperContents;
 import org.firstinspires.ftc.teamcode.mechanism.Intake;
 import org.firstinspires.ftc.teamcode.mechanism.Lift;
 import org.firstinspires.ftc.teamcode.mechanism.Webcam;
@@ -101,8 +102,8 @@ public abstract class RRAutoBase extends LinearOpMode {
             levels.add(webcam.getShippingHubLevel());
             if (levels.size() > 100) {
                 levels.removeFirst();
-                telemetry.addData("Status","Initialized.");
             }
+            telemetry.addData("Level", AutoUtil.mostCommon(levels));
             if (levels.size() < 30){
                 telemetry.addData("Confidence", "Low");
             } else if (levels.size() < 60){
@@ -130,8 +131,10 @@ public abstract class RRAutoBase extends LinearOpMode {
         drive.followTrajectorySequence(goToCarousel());
         runtime.reset();
         carousel.regenerateProfile();
+        carousel.timer.reset();
         while (!carousel.turnCarousel() && opModeIsActive() && runtime.seconds() < 5);
         carousel.carouselMotor.setPower(0);
+        delay(1000);
 //        carousel.turnCarouselSimple();
 //        delay(3000);
 //        carousel.carouselMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -142,8 +145,9 @@ public abstract class RRAutoBase extends LinearOpMode {
             // Wait for the camera to detect a duck
         }
         if (webcam.calculateYaw(CAMERA_POSITION) != null) {
-            drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
+            delay(500);
             telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
+            drive.turn(webcam.calculateYaw(CAMERA_POSITION));
             telemetry.update();
         } else {
             drive.followTrajectorySequenceAsync(interruptableStrafe());
@@ -152,8 +156,9 @@ public abstract class RRAutoBase extends LinearOpMode {
                 // Wait for the camera to detect a duck
             }
             if (webcam.calculateYaw(CAMERA_POSITION) != null) {
-                drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
+                delay(500);
                 telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
+                drive.turn(webcam.calculateYaw(CAMERA_POSITION));
                 telemetry.update();
             }
         }
@@ -162,8 +167,11 @@ public abstract class RRAutoBase extends LinearOpMode {
                 .forward(10)
                 .build();
         drive.followTrajectorySequence(pickUpDuck);
-        delay(3000);
-        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(pickUpDuck.end())
+        runtime.reset();
+        while(hopper.contents() == HopperContents.EMPTY && runtime.seconds() < 3) {
+            drive.update();
+        }
+        TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
                 .splineTo(hubPosition(), hubAngle())
                 // When you're .5 second away from the hub, put the lift up and stop the intake

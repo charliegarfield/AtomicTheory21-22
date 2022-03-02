@@ -13,7 +13,7 @@ public class RRPark3AutoBlue extends RRBlueAutoBase {
         return trajectorySequenceBuilder(goToHub().end())
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(-60, 36), Math.toRadians(270))
+                .splineTo(new Vector2d(-64, 40), Math.toRadians(270))
                 .build();
     }
 }

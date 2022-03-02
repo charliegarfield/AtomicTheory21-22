@@ -21,6 +21,8 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import static org.firstinspires.ftc.teamcode.Constants.CAMERA_POSITION;
+
 import android.graphics.Path;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -120,7 +122,7 @@ public class WebcamExample extends LinearOpMode
             } else {
                 telemetry.addData("Duck 0 x position", pipeline2.getDuckCenter().x);
                 telemetry.addData("Duck 0 y position", pipeline2.getDuckCenter().y);
-                telemetry.addData("Duck yaw", Math.toDegrees(pipeline2.calculateYaw(0)));
+                telemetry.addData("Duck yaw", Math.toDegrees(pipeline2.calculateYaw(CAMERA_POSITION)));
             }
             telemetry.update();
 

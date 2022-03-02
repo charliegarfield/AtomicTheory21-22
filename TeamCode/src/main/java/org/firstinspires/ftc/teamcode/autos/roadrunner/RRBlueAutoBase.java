@@ -53,7 +53,7 @@ public abstract class RRBlueAutoBase extends RRAutoBase {
     @Override
     TrajectorySequence interruptableStrafe() {
         return trajectorySequenceBuilder(interruptableSpline().end())
-                .strafeRight(10)
+                .strafeRight(30)
                 .build();
     }
 

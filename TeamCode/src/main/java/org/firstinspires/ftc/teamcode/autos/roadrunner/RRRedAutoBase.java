@@ -20,7 +20,7 @@ public abstract class RRRedAutoBase extends RRAutoBase{
 
     @Override
     Vector2d hubPosition() {
-        return new Vector2d(-19, -41);
+        return new Vector2d(-19, -40.5);
     }
 
     @Override
@@ -40,7 +40,7 @@ public abstract class RRRedAutoBase extends RRAutoBase{
     TrajectorySequence goToCarousel() {
         return trajectorySequenceBuilder(goToHub().end())
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0,0.8))
-                .splineToLinearHeading(new Pose2d(-60, -62, Math.toRadians(-280)), Math.toRadians(280))
+                .splineToLinearHeading(new Pose2d(-61, -63 , Math.toRadians(-280)), Math.toRadians(280))
                 .build();
     }
 
@@ -54,7 +54,7 @@ public abstract class RRRedAutoBase extends RRAutoBase{
     @Override
     TrajectorySequence interruptableStrafe() {
         return trajectorySequenceBuilder(interruptableSpline().end())
-                .strafeLeft(10)
+                .strafeLeft(30)
                 .build();
     }
 }
