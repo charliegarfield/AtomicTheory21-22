@@ -122,7 +122,7 @@ public class WebcamExample extends LinearOpMode
             } else {
                 telemetry.addData("Duck 0 x position", pipeline2.getDuckCenter().x);
                 telemetry.addData("Duck 0 y position", pipeline2.getDuckCenter().y);
-                telemetry.addData("Duck yaw", Math.toDegrees(pipeline2.calculateYaw(CAMERA_POSITION)));
+                telemetry.addData("Duck yaw", -pipeline2.calculateYaw(CAMERA_POSITION));
             }
             telemetry.update();
 

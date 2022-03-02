@@ -147,7 +147,7 @@ public abstract class RRAutoBase extends LinearOpMode {
         if (webcam.calculateYaw(CAMERA_POSITION) != null) {
             delay(500);
             telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
-            drive.turn(webcam.calculateYaw(CAMERA_POSITION));
+            drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
             telemetry.update();
         } else {
             drive.followTrajectorySequenceAsync(interruptableStrafe());
@@ -158,7 +158,7 @@ public abstract class RRAutoBase extends LinearOpMode {
             if (webcam.calculateYaw(CAMERA_POSITION) != null) {
                 delay(500);
                 telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
-                drive.turn(webcam.calculateYaw(CAMERA_POSITION));
+                drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
                 telemetry.update();
             }
         }

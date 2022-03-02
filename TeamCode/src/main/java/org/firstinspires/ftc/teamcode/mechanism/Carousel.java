@@ -144,7 +144,7 @@ public class Carousel implements Mechanism {
 
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), 1100 * colorMultiplier, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), 800 * colorMultiplier, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,

@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.autos.roadrunner;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanism.Color;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
@@ -48,12 +50,14 @@ public abstract class RRRedAutoBase extends RRAutoBase{
     TrajectorySequence interruptableSpline() {
         return trajectorySequenceBuilder(goToCarousel().end())
                 .splineToLinearHeading(new Pose2d(-55, -58 , Math.toRadians(-90)), Math.toRadians(90))
+                .back(1)
                 .build();
     }
 
     @Override
     TrajectorySequence interruptableStrafe() {
         return trajectorySequenceBuilder(interruptableSpline().end())
+                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .strafeLeft(30)
                 .build();
     }

@@ -11,10 +11,10 @@ public class RRPark3AutoRed extends RRRedAutoBase {
 
     @Override
     TrajectorySequence goToWarehouse() {
-        return trajectorySequenceBuilder(new Pose2d(new Vector2d(-24, -37), Math.toRadians(225)))
+        return trajectorySequenceBuilder(goToHub().end())
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(-60, -36), Math.toRadians(90))
+                .splineTo(new Vector2d(-60, -40), Math.toRadians(90))
                 .build();
     }
 }
