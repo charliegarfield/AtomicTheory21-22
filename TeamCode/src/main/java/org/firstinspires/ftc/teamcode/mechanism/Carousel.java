@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Carousel implements Mechanism {
     public int colorMultiplier;
     public ElapsedTime timer = new ElapsedTime();
-    public static PIDCoefficients coeffs = new PIDCoefficients(.008, 0, 0.0001);
+    public static PIDCoefficients coeffs = new PIDCoefficients(.009, 0, 0.0002);
 
     public double currentVelocity = 0;
     public double targetVelocity = 0;
@@ -62,6 +62,7 @@ public class Carousel implements Mechanism {
     }
 
     public void run(Gamepad gamepad) {
+        currentVelocity = carouselMotor.getVelocity();
 //        //This makes sure things only happen once.
 //        if (gamepad.a) {
 //            if (!aWasDown) {
@@ -114,8 +115,8 @@ public class Carousel implements Mechanism {
 
         if (maxVelocity != oldMaxVelocity || maxAcceleration != oldMaxAcceleration || maxJerk != oldMaxJerk) {
             controller = new PIDFController(coeffs);
-            profile = generateMotionProfile(carouselMotor.getCurrentPosition() + 4000 * colorMultiplier);
-            negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - 4000 * colorMultiplier);
+            profile = generateMotionProfile(carouselMotor.getCurrentPosition() + targetTicks * colorMultiplier);
+            negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - targetTicks * colorMultiplier);
         }
 
         oldMaxVelocity = maxVelocity;
@@ -144,7 +145,7 @@ public class Carousel implements Mechanism {
 
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), 800 * colorMultiplier, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), 1100 * colorMultiplier, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,
@@ -158,7 +159,7 @@ public class Carousel implements Mechanism {
         if (state.getX() < profile.start().getX() + 2650 && colorMultiplier == 1 || state.getX() > profile.start().getX() - 2650 && colorMultiplier == -1) {
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
-            controller.setTargetAcceleration(state.getA());
+            //controller.setTargetAcceleration(state.getA());
             currentVelocity = carouselMotor.getVelocity();
             targetVelocity = state.getV();
             velocityError = state.getV() - carouselMotor.getVelocity();
@@ -169,7 +170,7 @@ public class Carousel implements Mechanism {
             // measure the position or output variable
             // apply the correction to the input variable
             correction = controller.update(carouselMotor.getCurrentPosition());
-            carouselMotor.setPower(correction);
+            carouselMotor.setVelocity(state.getV());
             return false;
         } else {
             carouselMotor.setPower(0);
