@@ -58,7 +58,7 @@ public class Hopper implements Mechanism {
         double hue = hsvValues[0];
         double value = hsvValues[2];
 
-        if(dist < 2.5) {
+        if(dist < 6) {
             if(60 < hue && hue < 90 || hue > 100 && value > 0.1) {
                 return HopperContents.BLOCK;
             }
