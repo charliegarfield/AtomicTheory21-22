@@ -170,6 +170,9 @@ public abstract class CycleAutoBase extends LinearOpMode {
         while (hopper.contents() == HopperContents.EMPTY && drive.isBusy() && !isStopRequested()) {
             drive.update();
         }
+        telemetry.addData("UltrasonicX", drive.distanceSensorLocalizer.getPoseEstimate().getX());
+        telemetry.addData("UltrasonicY", drive.distanceSensorLocalizer.getPoseEstimate().getY());
+        telemetry.update();
     }
 
 
