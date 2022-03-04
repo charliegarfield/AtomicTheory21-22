@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos.roadrunner;
 
+import static org.firstinspires.ftc.teamcode.Constants.CAMERA_POSITION;
 import static org.firstinspires.ftc.teamcode.Constants.HOPPER_BOTTOM;
 import static org.firstinspires.ftc.teamcode.Constants.HOPPER_TOP;
 import static org.firstinspires.ftc.teamcode.Constants.LEVEL_1;
@@ -52,6 +53,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
         hopper.init(hardwareMap);
         intake.init(hardwareMap);
         webcam.init(hardwareMap);
+        webcam.switchToFreightPipeline();
 
         LinkedList<Integer> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
@@ -83,7 +85,6 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> lift.goTo(0, .8))
                 .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
                 .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
-                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .splineTo(getInsideWarehouseVector(), Math.toRadians(0))
                 .build();
         TrajectorySequence finishInWarehouse = drive.trajectorySequenceBuilder(goToHub.end())
@@ -113,22 +114,29 @@ public abstract class CycleAutoBase extends LinearOpMode {
         while (runtime.seconds() < 23 && !isStopRequested()) {
             drive.followTrajectorySequenceAsync(enterWarehouse);
             intakeTimer.reset();
-            while(opModeIsActive() && intakeTimer.seconds() < 1) {
+            while(opModeIsActive() && intakeTimer.seconds() < 1.5) {
                 drive.update();
             }
             waitForFullOrDone(drive, hopper);
-            intakeTimer.reset();
-            drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
-            while (hopper.contents() == HopperContents.EMPTY && intakeTimer.seconds() < 2 && !isStopRequested()) {
-                drive.update();
-            }
-            while (hopper.contents() == HopperContents.EMPTY && !isStopRequested()) {
-                intake.intakeMotor.setPower(-.5);
-                drive.setWeightedDrivePower(new Pose2d(-.2, 0, 0));
-                delay(600, drive);
-                intake.intakeMotor.setPower(.8);
-                drive.setWeightedDrivePower(new Pose2d(.3, 0, 0));
-                delay(1000, drive);
+            if(hopper.contents() == HopperContents.EMPTY) {
+                telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
+                drive.turnAsync(-webcam.calculateYaw(CAMERA_POSITION));
+                waitForFullOrDone(drive, hopper);
+                if(hopper.contents() == HopperContents.EMPTY) {
+                    intakeTimer.reset();
+                    drive.setWeightedDrivePower(new Pose2d(.2, 0, 0));
+                    while (hopper.contents() == HopperContents.EMPTY && intakeTimer.seconds() < 2 && !isStopRequested()) {
+                        drive.update();
+                    }
+                    while (hopper.contents() == HopperContents.EMPTY && !isStopRequested()) {
+                        intake.intakeMotor.setPower(-.5);
+                        drive.setWeightedDrivePower(new Pose2d(-.2, 0, 0));
+                        delay(600, drive);
+                        intake.intakeMotor.setPower(.8);
+                        drive.setWeightedDrivePower(new Pose2d(.3, 0, 0));
+                        delay(1000, drive);
+                    }
+                }
             }
             TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .setReversed(true)

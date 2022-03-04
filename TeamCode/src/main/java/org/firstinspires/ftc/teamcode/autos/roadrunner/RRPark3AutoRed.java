@@ -14,7 +14,7 @@ public class RRPark3AutoRed extends RRRedAutoBase {
         return trajectorySequenceBuilder(goToHub().end())
                 .setReversed(false)
                 .forward(2)
-                .splineTo(new Vector2d(-60, -40), Math.toRadians(90))
+                .splineTo(new Vector2d(-60, -40.5), Math.toRadians(90))
                 .build();
     }
 }

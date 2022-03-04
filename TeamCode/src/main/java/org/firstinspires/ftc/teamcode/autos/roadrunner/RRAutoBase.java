@@ -156,7 +156,7 @@ public abstract class RRAutoBase extends LinearOpMode {
                 // Wait for the camera to detect a duck
             }
             if (webcam.calculateYaw(CAMERA_POSITION) != null) {
-                delay(500);
+                delay(1000);
                 telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
                 drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
                 telemetry.update();

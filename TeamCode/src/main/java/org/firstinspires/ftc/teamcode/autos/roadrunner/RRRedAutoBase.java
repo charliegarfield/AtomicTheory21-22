@@ -22,8 +22,7 @@ public abstract class RRRedAutoBase extends RRAutoBase{
 
     @Override
     Vector2d hubPosition() {
-        return new Vector2d(-19, -40.5);
-    }
+        return new Vector2d(-19, -40);}
 
     @Override
     double hubAngle() {
