@@ -89,8 +89,6 @@ public class Carousel implements Mechanism {
             }
         } else if (gamepad.b) {
             if (!bWasDown) {
-                // turnCarousel();
-//                carouselMotor.setPower(-colorMultiplier * 0.45);
                 aWasDown = false;
                 bWasDown = true;
                 negativeProfile = generateMotionProfile(carouselMotor.getCurrentPosition() - targetTicks * colorMultiplier);

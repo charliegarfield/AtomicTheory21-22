@@ -24,8 +24,6 @@ public class CarouselRedTest extends OpMode {
         telemetry.addData("Current Velocity", carousel.currentVelocity);
         telemetry.addData("Target Velocity", carousel.targetVelocity);
         telemetry.addData("Velocity Error", carousel.velocityError);
-//        telemetry.addData("Current Position", carousel.currentPosition);
-//        telemetry.addData("Target Position", carousel.targetPosition);
         telemetry.addData("Correction", carousel.correction);
     }
 }

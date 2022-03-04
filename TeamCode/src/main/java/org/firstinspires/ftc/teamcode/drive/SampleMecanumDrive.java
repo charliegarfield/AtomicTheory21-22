@@ -22,10 +22,12 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.technototes.path.subsystem.DistanceSensorLocalizer;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.teamcode.mechanism.MB1242;
@@ -79,8 +81,10 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
-    //private MB1242 sensor1, sensor2, sensor3, sensor4;
+    private DistanceSensor frontSensor, rightSensor, backSensor;
     private VoltageSensor batteryVoltageSensor;
+    public DistanceSensorLocalizer distanceSensorLocalizer;
+    Map<DistanceSensor, Pose2d> sensorMap = new HashMap<>();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -111,12 +115,9 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightRear = hardwareMap.get(DcMotorEx.class, "br");
         rightFront = hardwareMap.get(DcMotorEx.class, "fr");
 
-        /*
-        sensor1 = hardwareMap.get(MB1242.class, "sensor1");
-        sensor2 = hardwareMap.get(MB1242.class, "sensor2");
-        sensor3 = hardwareMap.get(MB1242.class, "sensor3");
-        sensor4 = hardwareMap.get(MB1242.class, "sensor4");
-         */
+        frontSensor = hardwareMap.get(MB1242.class, "frontsensor");
+        rightSensor = hardwareMap.get(MB1242.class, "rightsensor");
+        backSensor = hardwareMap.get(MB1242.class, "backsensor");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -142,15 +143,18 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        Map<MB1242, Pose2d> sensorMap = new HashMap<>();
         // front is 0 heading, left is -90, right is 90, back is 180
-//        sensorMap.put(sensor1, new Pose2d(6.0, 0.0, Math.toRadians(0.0)));
-//        sensorMap.put(sensor2, new Pose2d(0.0, 5.0, -90.0));
-//        sensorMap.put(sensor3, new Pose2d(0.0, -5.0, 90.0));
-//        sensorMap.put(sensor4, new Pose2d(-6.0, 0.0, Math.toRadians(180.0)));
+        sensorMap.put(frontSensor, new Pose2d(5.35, -5.2, Math.toRadians(0.0)));
+        sensorMap.put(backSensor, new Pose2d(-6.475, 3.325, Math.toRadians(180.0)));
+        sensorMap.put(rightSensor, new Pose2d(4.15, 5.45, Math.toRadians(90.0)));
+        distanceSensorLocalizer = new DistanceSensorLocalizer(this, sensorMap);
 //
-//        setLocalizer(new UltrasonicLocalizer(this, sensorMap));
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
+    }
+
+    public void relocalize() {
+        distanceSensorLocalizer.update(getPoseEstimate());
+        setPoseEstimate(distanceSensorLocalizer.getPoseEstimate());
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

@@ -118,6 +118,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 drive.update();
             }
             waitForFullOrDone(drive, hopper);
+            drive.relocalize();
             if(hopper.contents() == HopperContents.EMPTY) {
                 telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
                 drive.turnAsync(-webcam.calculateYaw(CAMERA_POSITION));
@@ -138,6 +139,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
                     }
                 }
             }
+            drive.relocalize();
             TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .setReversed(true)
                     .addTemporalMarker(() -> intake.intakeMotor.setPower(-.5))
