@@ -15,5 +15,6 @@ public abstract class ServoTest extends OpMode {
     @Override
     public void loop() {
         servo.setPosition(gamepad1.left_stick_y);
+        telemetry.addData("Position", servo.getPosition());
     }
 }

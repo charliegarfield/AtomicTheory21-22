@@ -109,7 +109,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
         drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         //waitForEmpty(drive, hopper);
-        delay(800, drive);
+        delay(1300, drive);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         while (runtime.seconds() < 23 && !isStopRequested()) {
             drive.followTrajectorySequenceAsync(enterWarehouse);
@@ -118,6 +118,8 @@ public abstract class CycleAutoBase extends LinearOpMode {
                 drive.update();
             }
             waitForFullOrDone(drive, hopper);
+            drive.ping();
+            delay(50, drive);
             drive.relocalize();
             if(hopper.contents() == HopperContents.EMPTY) {
                 telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
@@ -139,6 +141,8 @@ public abstract class CycleAutoBase extends LinearOpMode {
                     }
                 }
             }
+            drive.ping();
+            delay(50, drive);
             drive.relocalize();
             TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .setReversed(true)
@@ -154,7 +158,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             drive.followTrajectorySequence(returnToHub);
             hopper.hopper.setPosition(HOPPER_TOP);
             //waitForEmpty(drive, hopper);
-            delay(800, drive);
+            delay(1300, drive);
             hopper.hopper.setPosition(HOPPER_BOTTOM);
         }
         drive.followTrajectorySequence(finishInWarehouse);

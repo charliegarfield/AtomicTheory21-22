@@ -27,7 +27,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
-import com.technototes.path.subsystem.DistanceSensorLocalizer;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.teamcode.mechanism.MB1242;
@@ -81,10 +80,10 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
-    private DistanceSensor frontSensor, rightSensor, backSensor;
+    private MB1242 frontSensor, rightSensor, backSensor;
     private VoltageSensor batteryVoltageSensor;
     public DistanceSensorLocalizer distanceSensorLocalizer;
-    Map<DistanceSensor, Pose2d> sensorMap = new HashMap<>();
+    Map<MB1242, Pose2d> sensorMap = new HashMap<>();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -157,6 +156,9 @@ public class SampleMecanumDrive extends MecanumDrive {
         setPoseEstimate(distanceSensorLocalizer.getPoseEstimate());
     }
 
+    public void ping() {
+        distanceSensorLocalizer.pingSensors();
+    }
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }

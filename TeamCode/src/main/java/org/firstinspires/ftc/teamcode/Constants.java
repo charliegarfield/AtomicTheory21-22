@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class Constants {
     public static final double SENSITIVITY = 1;
     public static final double SLOW_MODE_SENSITIVITY = 0.4;
@@ -14,9 +17,9 @@ public class Constants {
     public static final int LEVEL_1 = 550;
     public static final int LEVEL_2 = 800;
     public static final int LEVEL_3 = 1300;
-    public static final double HOPPER_BOTTOM = 0.47;
-    public static final double HOPPER_TOP = 0.8;
-    public static final double HOPPER_BACK = 0;
+    public static double HOPPER_BOTTOM = 0.23;
+    public static double HOPPER_TOP = 0.6;
+    public static double HOPPER_BACK = 0;
 
     // Capper Constants:
     public static final double CAPPER_SPEED = 0.3;

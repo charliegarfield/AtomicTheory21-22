@@ -1,4 +1,4 @@
-package com.technototes.path.subsystem;
+package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.mechanism.MB1242;
 import org.firstinspires.ftc.teamcode.util.MathUtils;
 
 import java.util.ArrayList;
@@ -24,10 +25,11 @@ public class DistanceSensorLocalizer implements Localizer {
     private final SampleMecanumDrive drive;
 
     private final double maxSensorDistance = 144;
+    private final double minSensorDistance = 7.7;
 
-    private final Map<DistanceSensor, Pose2d> sensorMap;
+    private final Map<MB1242, Pose2d> sensorMap;
 
-    public DistanceSensorLocalizer(SampleMecanumDrive drive, Map<DistanceSensor, Pose2d> map){
+    public DistanceSensorLocalizer(SampleMecanumDrive drive, Map<MB1242, Pose2d> map){
         this.drive = drive;
         sensorMap = map;
         poseEstimate = new Pose2d();
@@ -54,17 +56,23 @@ public class DistanceSensorLocalizer implements Localizer {
     @Override
     public void update() {
         update(null);
-
     }
+
+    public void pingSensors(){
+        for(MB1242 sensor : sensorMap.keySet()){
+            sensor.ping();
+        }
+    }
+
     public void update(@Nullable Pose2d old){
         double heading = getHeading();
         double accumX = 0, accumY = 0;
         int totalX = 0, totalY = 0;
-        for(Map.Entry<DistanceSensor, Pose2d> entry : sensorMap.entrySet()){
+        for(Map.Entry<MB1242, Pose2d> entry : sensorMap.entrySet()){
             DistanceSensor sensor = entry.getKey();
             Pose2d sensorPose = entry.getValue();
             double distance = sensor.getDistance(DistanceUnit.INCH);
-            if(distance  < maxSensorDistance && distance > 8) {
+            if(distance  < maxSensorDistance && distance > minSensorDistance) {
                 sensorPose = new Pose2d(sensorPose.vec().rotated(heading), Angle.norm(sensorPose.getHeading() + heading));
                 double change;
                 switch (MathUtils.closestTo(2*sensorPose.getHeading()/Math.PI,  0, 1, 2, 3, 4)){

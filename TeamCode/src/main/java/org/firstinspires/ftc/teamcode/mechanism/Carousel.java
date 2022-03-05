@@ -142,7 +142,7 @@ public class Carousel implements Mechanism {
 
         // Based on 60RPM motor, adjust if different
         return MotionProfileGenerator.generateSimpleMotionProfile(
-        new MotionState(carouselMotor.getCurrentPosition(), 1100 * colorMultiplier, 0),
+        new MotionState(carouselMotor.getCurrentPosition(), 1200 * colorMultiplier, 0),
         new MotionState(ticks, 0, 0),
         maxVelocity,
         maxAcceleration,
@@ -153,7 +153,7 @@ public class Carousel implements Mechanism {
         // specify coefficients/gains
         // create the controller
         MotionState state = profile.get(timer.time());
-        if (state.getX() < profile.start().getX() + 2650 && colorMultiplier == 1 || state.getX() > profile.start().getX() - 2650 && colorMultiplier == -1) {
+        if (state.getX() < profile.start().getX() + 2800 && colorMultiplier == 1 || state.getX() > profile.start().getX() - 2800 && colorMultiplier == -1) {
             currentVelocity = carouselMotor.getVelocity();
             targetVelocity = state.getV();
             velocityError = state.getV() - carouselMotor.getVelocity();

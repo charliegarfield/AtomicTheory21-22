@@ -126,7 +126,7 @@ public abstract class RRAutoBase extends LinearOpMode {
         }
         drive.followTrajectorySequence(goToHub());
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1000);
+        delay(1300);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         drive.followTrajectorySequence(goToCarousel());
         runtime.reset();
@@ -146,9 +146,11 @@ public abstract class RRAutoBase extends LinearOpMode {
         }
         if (webcam.calculateYaw(CAMERA_POSITION) != null) {
             delay(500);
-            telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
-            drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
-            telemetry.update();
+            if (webcam.calculateYaw(CAMERA_POSITION) != null){
+                telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
+                drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
+                telemetry.update();
+            }
         } else {
             drive.followTrajectorySequenceAsync(interruptableStrafe());
             while (opModeIsActive() && webcam.calculateYaw(CAMERA_POSITION) == null && drive.isBusy()) {
@@ -157,9 +159,11 @@ public abstract class RRAutoBase extends LinearOpMode {
             }
             if (webcam.calculateYaw(CAMERA_POSITION) != null) {
                 delay(1000);
-                telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
-                drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
-                telemetry.update();
+                if (webcam.calculateYaw(CAMERA_POSITION) != null){
+                    telemetry.addData("Yaw", -webcam.calculateYaw(CAMERA_POSITION));
+                    drive.turn(-webcam.calculateYaw(CAMERA_POSITION));
+                    telemetry.update();
+                }
             }
         }
         intake.intakeMotor.setPower(.9);
@@ -183,7 +187,7 @@ public abstract class RRAutoBase extends LinearOpMode {
         drive.followTrajectorySequence(returnToHub);
         delay(100);
         hopper.hopper.setPosition(HOPPER_TOP);
-        delay(1000);
+        delay(1300);
         hopper.hopper.setPosition(HOPPER_BOTTOM);
         lift.goTo(0,0.8);
         telemetry.clear();

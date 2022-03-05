@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.drive.opmode.PoseUpdate;
 import org.firstinspires.ftc.teamcode.mechanism.MB1242;
 import org.firstinspires.ftc.teamcode.util.MathUtils;
 
@@ -24,20 +25,20 @@ import java.util.Map;
 public class UltrasonicLocalizer implements Localizer {
     public static final double DIST_TOLERANCE = 2.0;
     public final double MAX_SENSOR_DISTANCE = 142;
+    PoseUpdate poseUpdate = new PoseUpdate();
     Pose2d poseEstimate;
+    Pose2d previousPose;
+    SampleMecanumDrive drive;
     ElapsedTime pingTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     private final Map<MB1242, Pose2d> sensorMap;
 
-    public UltrasonicLocalizer(MecanumDrive drive, Map<MB1242, Pose2d> map) {
+    public UltrasonicLocalizer(SampleMecanumDrive drive, Map<MB1242, Pose2d> map) {
         this.drive = drive;
         sensorMap = map;
-        poseEstimate = new Pose2d();
     }
 
-    MecanumDrive drive;
 
     double theta = 0;
-    Pose2d previousPose = new Pose2d(0, 0, 0);
     List<Double> lastWheelPositions = new ArrayList<>();
 
 
@@ -52,9 +53,6 @@ public class UltrasonicLocalizer implements Localizer {
 
     // A guy on discord said this is about right
     int MILLIS_PER_CYCLE = 40;
-
-    final double ROBOT_WIDTH = 11.95;
-    final double ROBOT_LENGTH = 13.8;
 
 
     @NonNull
@@ -73,7 +71,7 @@ public class UltrasonicLocalizer implements Localizer {
     @Nullable
     @Override
     public Pose2d getPoseVelocity() {
-        return calculatePoseDeltaEncoders();
+        return null;
     }
 
     @Override
@@ -123,52 +121,18 @@ public class UltrasonicLocalizer implements Localizer {
         // This will also be true if the sensors weren't pinged this cycle
         if (totalX != 0 && totalY != 0) {
             poseEstimate = new Pose2d(accumX / totalX, accumY / totalY, heading);
+            poseUpdate.set_poseEstimate(poseEstimate);
         } else {
             poseEstimate = calculatePoseEncoders();
         }
     }
+
 
     /**
      * @see com.acmerobotics.roadrunner.drive.MecanumDrive.MecanumLocalizer
      * Basically just that math added to this class because some of it is private
      */
     public Pose2d calculatePoseEncoders() {
-        List<Double> wheelPositions = drive.getWheelPositions();
-        List<Double> wheelDeltas = new ArrayList<>();
-        if (lastWheelPositions.size() != 0) {
-            for (int i = 0; i < lastWheelPositions.size(); i++) {
-                double difference = wheelPositions.get(i) - lastWheelPositions.get(i);
-                wheelDeltas.add(difference);
-            }
-        }
-        Pose2d robotPoseDelta = MecanumKinematics.wheelToRobotVelocities(
-                wheelDeltas,
-                DriveConstants.TRACK_WIDTH,
-                DriveConstants.TRACK_WIDTH
-        );
-        double finalHeadingDelta = Angle.normDelta(robotPoseDelta.getHeading() - previousPose.getHeading());
-        lastWheelPositions = wheelPositions;
-        return Kinematics.relativeOdometryUpdate(poseEstimate, new Pose2d(robotPoseDelta.vec(), finalHeadingDelta));
-    }
-
-    public Pose2d calculatePoseDeltaEncoders() {
-        Pose2d poseVelocity;
-        List<Double> wheelVelocities = getWheelVelocities();
-        if (wheelVelocities != null) {
-            poseVelocity = MecanumKinematics.wheelToRobotVelocities(
-                    wheelVelocities,
-                    DriveConstants.TRACK_WIDTH,
-                    DriveConstants.TRACK_WIDTH,
-                    1
-            );
-            poseVelocity = new Pose2d(poseVelocity.vec(), drive.getExternalHeadingVelocity() != null ? drive.getExternalHeadingVelocity() : 0);
-
-            return poseVelocity;
-        }
-        return null;
-    }
-
-    public List<Double> getWheelVelocities() {
-        return drive.getWheelVelocities();
+        return poseUpdate.get_poseEstimate();
     }
 }

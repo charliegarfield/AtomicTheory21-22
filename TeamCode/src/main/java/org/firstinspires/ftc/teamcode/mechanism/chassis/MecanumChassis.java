@@ -72,31 +72,31 @@ public class MecanumChassis extends Chassis {
 
     @Override
     public void run(Gamepad gamepad){
-        //This works, just trust me on it. Slack me or something if you need a full explanation.
-        double flPower = (gamepad.left_stick_x - gamepad.left_stick_y + gamepad.right_stick_x)* DRIVE_STICK_THRESHOLD;
-        double frPower = (-gamepad.left_stick_x - gamepad.left_stick_y - gamepad.right_stick_x)* DRIVE_STICK_THRESHOLD;
-        double blPower = (-gamepad.left_stick_x - gamepad.left_stick_y + gamepad.right_stick_x)* DRIVE_STICK_THRESHOLD;
-        double brPower = (gamepad.left_stick_x - gamepad.left_stick_y - gamepad.right_stick_x)* DRIVE_STICK_THRESHOLD;
+        // This works, just trust me on it. Slack me or something if you need a full explanation.
+        double flPower = (gamepad.left_stick_x - gamepad.left_stick_y + gamepad.right_stick_x) * DRIVE_STICK_THRESHOLD;
+        double frPower = (-gamepad.left_stick_x - gamepad.left_stick_y - gamepad.right_stick_x) * DRIVE_STICK_THRESHOLD;
+        double blPower = (-gamepad.left_stick_x - gamepad.left_stick_y + gamepad.right_stick_x) * DRIVE_STICK_THRESHOLD;
+        double brPower = (gamepad.left_stick_x - gamepad.left_stick_y - gamepad.right_stick_x) * DRIVE_STICK_THRESHOLD;
 
-        //This bit seems complicated, but it just gets the maximum absolute value of all the motors.
+        // This bit seems complicated, but it just gets the maximum absolute value of all the motors.
         double maxPower = Math.max(Math.max(Math.abs(flPower), Math.abs(frPower)), Math.max(Math.abs(blPower), Math.abs(brPower)));
 
-        //If maxPower is less than 1, make it 1. This allows for slower movements.
+        // If maxPower is less than 1, make it 1. This allows for slower movements.
         maxPower = Math.max(maxPower, 1);
 
-        //Make all of them proportional to the greatest value and factor in the sensitivity.
+        // Make all of them proportional to the greatest value and factor in the sensitivity.
         flPower = (flPower / maxPower) * SENSITIVITY;
         frPower = (frPower / maxPower) * SENSITIVITY;
         blPower = (blPower / maxPower) * SENSITIVITY;
         brPower = (brPower / maxPower) * SENSITIVITY;
 
-        //Actually set them
+        // Actually set them
 
         if (gamepad.left_trigger > TRIGGER_THRESHOLD) {
-            frontLeft.setPower(flPower* SLOW_MODE_SENSITIVITY);
-            frontRight.setPower(frPower* SLOW_MODE_SENSITIVITY);
-            backLeft.setPower(blPower* SLOW_MODE_SENSITIVITY);
-            backRight.setPower(brPower* SLOW_MODE_SENSITIVITY);
+            frontLeft.setPower(flPower * SLOW_MODE_SENSITIVITY);
+            frontRight.setPower(frPower * SLOW_MODE_SENSITIVITY);
+            backLeft.setPower(blPower * SLOW_MODE_SENSITIVITY);
+            backRight.setPower(brPower * SLOW_MODE_SENSITIVITY);
         }
         else {
             frontLeft.setPower(flPower);
