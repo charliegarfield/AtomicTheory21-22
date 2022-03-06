@@ -80,16 +80,16 @@ abstract public class MecanumTeleOp extends OpMode {
             }
             hadCargo = true;
             // Start auto outtake and disable the auto stop
-            intake.overrideOut();
+//            intake.overrideOut();
             gainedCargoTime = elapsedTime.seconds();
         } else if (hadCargo && hopper.contents() == HopperContents.EMPTY) {
             hadCargo = false;
         }
 
-        // When it's been 3 seconds since we intook, stop the auto outtake
-        if (elapsedTime.time() - gainedCargoTime > 3) {
-            intake.overrideStop();
-        }
+//        // When it's been 3 seconds since we intook, stop the auto outtake
+//        if (elapsedTime.time() - gainedCargoTime > 3) {
+//            intake.overrideStop();
+//        }
 
 
         // Check if it is endgame yet

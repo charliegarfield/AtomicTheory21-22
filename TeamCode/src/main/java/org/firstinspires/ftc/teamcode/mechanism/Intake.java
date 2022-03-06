@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake implements Mechanism {
     public DcMotor intakeMotor;
-    public boolean intakeOverrideActive = false;
+//    public boolean intakeOverrideActive = false;
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -15,17 +15,17 @@ public class Intake implements Mechanism {
 
     @Override
     public void run(Gamepad gamepad) {
-        if (!intakeOverrideActive) {
+//        if (!intakeOverrideActive) {
             if (gamepad.left_trigger + gamepad.right_trigger > .5) {
                 intakeMotor.setPower(gamepad.right_trigger - gamepad.left_trigger);
             } else {
                 intakeMotor.setPower(0);
             }
-        } else if (gamepad.right_trigger > 0.5 && gamepad.left_trigger > 0.5) {
-            intakeOverrideActive = false;
-        }
+//        } else if (gamepad.right_trigger > 0.5 && gamepad.left_trigger > 0.5) {
+//            intakeOverrideActive = false;
+//        }
     }
-
+/*
     public void overrideOut() {
         intakeMotor.setPower(-.3);
         intakeOverrideActive = true;
@@ -44,4 +44,6 @@ public class Intake implements Mechanism {
     public boolean isOverrideActive() {
         return intakeOverrideActive;
     }
+
+ */
 }
