@@ -35,13 +35,13 @@ public class Sticky implements Mechanism {
         }
 
         if (Math.abs(gamepad.right_stick_x) > .2) {
-            rotateServo.setPower(gamepad.right_stick_x * 0.3);
+            rotateServo.setPower(gamepad.right_stick_x * 0.2);
         } else {
             rotateServo.setPower(0);
         }
 
         if (Math.abs(gamepad.right_stick_y) > .2) {
-            heightServo.setPower(-gamepad.right_stick_y * 0.6);
+            heightServo.setPower(-gamepad.right_stick_y * 0.5);
         } else {
             heightServo.setPower(0);
         }
