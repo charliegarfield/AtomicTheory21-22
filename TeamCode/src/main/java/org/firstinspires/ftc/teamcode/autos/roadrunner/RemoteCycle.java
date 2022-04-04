@@ -55,7 +55,7 @@ public class RemoteCycle extends LinearOpMode {
     Vector2d[] getWarehouseIntakeVectors() {
         return new Vector2d[] {
                 new Vector2d(44.5, -66),
-                new Vector2d(45.5,-66),
+                new Vector2d(46,-66),
                 new Vector2d(45,-64),
                 new Vector2d(46,-64),
                 new Vector2d(47,-66)
@@ -117,6 +117,7 @@ public class RemoteCycle extends LinearOpMode {
         for(int i = 0; i < enterWarehouseSequences.length; i++) {
             enterWarehouseSequences[i] = drive.trajectorySequenceBuilder(goToHub.end())
                     .setReversed(false)
+                    .addTemporalMarker(() -> intake.intakeMotor.setPower(0))
                     .addTemporalMarker(1, () -> lift.goTo(0, .8))
                     .splineTo(getWarehouseEntryVector(), Math.toRadians(0))
                     .addTemporalMarker(() -> intake.intakeMotor.setPower(.8))
