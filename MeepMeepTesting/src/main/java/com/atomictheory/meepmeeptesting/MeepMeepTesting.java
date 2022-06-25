@@ -143,6 +143,7 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-36, -64, Math.toRadians(-90)))
                         .waitSeconds(2)
                         .setReversed(true)
+                        .splineTo(new Vector2d(-46, -36), Math.toRadians(90))
                         .splineTo(new Vector2d(-28, -24), Math.toRadians(0))
                         .waitSeconds(1)
                         .setReversed(false)
