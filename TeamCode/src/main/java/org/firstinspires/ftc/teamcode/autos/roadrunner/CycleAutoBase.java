@@ -97,15 +97,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
-        if (level == 1) {
-            lift.goTo(LEVEL_1, 0.8);
-        } else if (level == 2) {
-            lift.goTo(LEVEL_2, 0.8);
-        } else if (level == 3) {
-            lift.goTo(LEVEL_3, 0.8);
-        } else {
-            throw new IllegalStateException("Invalid shipping hub level: " + level);
-        }
+        goToLevel(level);
         drive.followTrajectorySequence(goToHub);
         hopper.hopper.setPosition(HOPPER_TOP);
         //waitForEmpty(drive, hopper);
@@ -147,7 +139,7 @@ public abstract class CycleAutoBase extends LinearOpMode {
             drive.relocalize();
             TrajectorySequence returnToHub = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                     .setReversed(true)
-                    .addTemporalMarker(() -> intake.intakeMotor.setPower(-.5))
+                    .UNSTABLE_addTemporalMarkerOffset(1, () -> intake.intakeMotor.setPower(-.5))
                     .splineTo(getWarehouseExitVector(), Math.toRadians(180))
                     .splineTo(getWarehouseEntryVector(), Math.toRadians(180))
                     .splineTo(getHubVector(), getHubAngle())
@@ -163,6 +155,18 @@ public abstract class CycleAutoBase extends LinearOpMode {
             hopper.hopper.setPosition(HOPPER_BOTTOM);
         }
         drive.followTrajectorySequence(finishInWarehouse);
+    }
+
+    private void goToLevel(int level) {
+        if (level == 1) {
+            lift.goTo(LEVEL_1, 0.8);
+        } else if (level == 2) {
+            lift.goTo(LEVEL_2, 0.8);
+        } else if (level == 3) {
+            lift.goTo(LEVEL_3, 0.8);
+        } else {
+            throw new IllegalStateException("Invalid shipping hub level: " + level);
+        }
     }
 
     private void waitForEmpty(SampleMecanumDrive drive, Hopper hopper) {

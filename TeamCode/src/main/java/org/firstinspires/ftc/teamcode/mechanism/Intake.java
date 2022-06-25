@@ -43,7 +43,6 @@ public class Intake implements Mechanism {
 
     public boolean isOverrideActive() {
         return intakeOverrideActive;
-    }
 
  */
 }

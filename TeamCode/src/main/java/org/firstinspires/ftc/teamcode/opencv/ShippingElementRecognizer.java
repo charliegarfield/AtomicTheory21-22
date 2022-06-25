@@ -44,10 +44,12 @@ public class ShippingElementRecognizer extends OpenCvPipeline {
         Core.inRange(input, lowHSV, highHSV, mat); // make purple white, everything else black
         Mat left = mat.submat(LEFTBOX);
         Mat right = mat.submat(RIGHTBOX);
+
         leftValue = Core.sumElems(left).val[0] / LEFTBOX.area(); // Get white pixel / total pixel count
         rightValue = Core.sumElems(right).val[0] / RIGHTBOX.area(); // Get white pixel / total pixel count
         Imgproc.rectangle(mat, LEFTBOX, new Scalar(255, 0, 0), 2); // draw rectangles around the boxes
         Imgproc.rectangle(mat, RIGHTBOX, new Scalar(255, 0, 0), 2);
+        Scalar scalar = new Scalar(0,0,0);
         // If neither value is high enough , then the shipping hub level is 3, otherwise we continue
         if (leftValue > 10 || rightValue > 10){
             if (leftValue >= rightValue){

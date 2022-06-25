@@ -105,7 +105,7 @@ abstract public class MecanumTeleOp extends OpMode {
         telemetry.addData("front right pos", chassis.frontRight.getCurrentPosition());
         telemetry.addData("back left pos", chassis.backLeft.getCurrentPosition());
         telemetry.addData("back right pos", chassis.backRight.getCurrentPosition());
-        telemetry.addData("sticky mode", stickyMode);
+        telemetry.addData("contents", hopper.contents());
         telemetry.addData("rotate servo pos", sticky.rotatePosition);
         telemetry.addData("height servo pos", sticky.heightPosition);
         telemetry.addData("hopper contents", hopper.contents());

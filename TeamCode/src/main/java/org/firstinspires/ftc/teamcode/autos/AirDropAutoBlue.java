@@ -22,13 +22,13 @@ public class AirDropAutoBlue extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2) {
+        while (opModeIsActive() && runtime.seconds() < 4) {
             frontLeft.setPower(.3);
             frontRight.setPower(.3);
             backLeft.setPower(.3);
             backRight.setPower(.3);
         }
-        while (opModeIsActive() && runtime.seconds() < 4) {
+        while (opModeIsActive() && runtime.seconds() < 8) {
             frontLeft.setPower(.3);
             frontRight.setPower(-.3);
             backLeft.setPower(.3);
